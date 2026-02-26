@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شيت المشتريات</title>
+  <link rel="stylesheet" href="new-styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container">
+    <div class="d-flex justify-between align-center flex-wrap mb-2">
+      <h2 class="page-title">📄 شيت المشتريات</h2>
+      <button class="btn btn-primary" id="btnAdd">➕ إضافة صف</button>
+    </div>
+
+    <div class="period-bar card">
+      <label>📅 الفترة:</label>
+      <select id="periodSel" class="form-control" style="width:180px;"></select>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>م</th>
+              <th>التاريخ</th>
+              <th>المادة</th>
+              <th>الاسم بالانجليزي</th>
+              <th>نوع المادة</th>
+              <th>الاسم التجاري</th>
+              <th>التركيز</th>
+              <th>المنشأ</th>
+              <th>السعر</th>
+              <th>المورد</th>
+              <th>المسئول</th>
+              <th>التليفون</th>
+              <th>الواتس</th>
+              <th>المخزن</th>
+              <th>الملاحظات</th>
+              <th>حذف</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="new-app.js"></script>
+  <script>
+    const SHEET = 'proc_sheet';
+    const session = App.requireAuth(['procurement','proc_manager','admin','gm']);
+    if (session) init();
+
+    let period = App.currentPeriod();
+    let serverDate = App.todayLocal();
+
+    async function init() {
+      serverDate = await App.fetchServerDate();
+      App.renderNavbar(document.getElementById('navbar'), session, navLinks());
+
+      const ps = document.getElementById('periodSel');
+      ps.innerHTML = App.buildPeriodOptions(!App.canArchive(session.role));
+      ps.value = period;
+      ps.addEventListener('change', () => { period = ps.value; render(); });
+
+      document.getElementById('btnAdd').addEventListener('click', addRow);
+      render();
+    }
+
+    function navLinks() {
+      const links = [];
+      if (App.isManager(session.role)) links.push({ label:'🏠 الرئيسية', href:'new-home.html' });
+      links.push({ label:'🛒 تقرير المشتريات', href:'new-proc-report.html' });
+      return links;
+    }
+
+    function render() {
+      const rows = App.getRows(SHEET, period);
+      const tbody = document.getElementById('tbody');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="16" class="text-muted text-center" style="padding:1.5rem;">لا توجد بيانات لهذه الفترة</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map((r, i) => rowHtml(r, i + 1)).join('');
+    }
+
+    function rowHtml(r, num) {
+      const mats = App.getApprovedMaterials();
+      const matOpts = mats.map(m => `<option value="${m.name}"${r.material===m.name?' selected':''}>${m.name}</option>`).join('');
+      const selMat  = mats.find(m => m.name === r.material);
+      const matEn   = selMat ? selMat.nameEn : (r.materialEn || '');
+      return `<tr data-id="${r.id}">
+        <td>${num}</td>
+        <td><input type="date" value="${r.date||''}" onchange="upd(${r.id},'date',this.value)"></td>
+        <td><select onchange="onMatChange(${r.id},this.value)"><option value="">-- اختر --</option>${matOpts}</select></td>
+        <td><input type="text" value="${esc(matEn)}" readonly placeholder="تلقائي"></td>
+        <td><input type="text" value="${esc(r.matType||'')}" onchange="upd(${r.id},'matType',this.value)" placeholder="نوع المادة"></td>
+        <td><input type="text" value="${esc(r.tradeName||'')}" onchange="upd(${r.id},'tradeName',this.value)" placeholder="الاسم التجاري"></td>
+        <td><input type="text" value="${esc(r.concentration||'')}" onchange="upd(${r.id},'concentration',this.value)" placeholder="التركيز"></td>
+        <td><input type="text" value="${esc(r.origin||'')}" onchange="upd(${r.id},'origin',this.value)" placeholder="المنشأ"></td>
+        <td><input type="number" step="0.01" value="${r.price||''}" onchange="upd(${r.id},'price',this.value)" placeholder="0"></td>
+        <td><input type="text" value="${esc(r.supplier||'')}" onchange="upd(${r.id},'supplier',this.value)" placeholder="المورد"></td>
+        <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="المسئول"></td>
+        <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="التليفون"></td>
+        <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="الواتس"></td>
+        <td><input type="text" value="${esc(r.store||'')}" onchange="upd(${r.id},'store',this.value)" placeholder="المخزن"></td>
+        <td><input type="text" value="${esc(r.notes||'')}" onchange="upd(${r.id},'notes',this.value)" placeholder="ملاحظات"></td>
+        <td><button class="btn btn-danger btn-sm" onclick="del(${r.id})">🗑</button></td>
+      </tr>`;
+    }
+
+    function addRow() {
+      App.addRow(SHEET, period, { date: serverDate });
+      render();
+    }
+
+    function upd(id, key, val) {
+      App.updateRow(SHEET, period, id, { [key]: val });
+    }
+
+    function onMatChange(id, matName) {
+      const mats = App.getApprovedMaterials();
+      const m = mats.find(x => x.name === matName);
+      App.updateRow(SHEET, period, id, { material: matName, materialEn: m ? m.nameEn : '' });
+      render();
+    }
+
+    function del(id) {
+      if (confirm('حذف هذا الصف؟')) { App.deleteRow(SHEET, period, id); render(); }
+    }
+
+    function esc(s) { return App.escHtml(s); }
+  </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "new-arabic-rtl",
+  "version": "1.0.0",
+  "description": "Arabic RTL interface",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}

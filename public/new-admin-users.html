@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدارة المستخدمين</title>
+  <link rel="stylesheet" href="new-styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container">
+    <h2 class="page-title">👥 إدارة المستخدمين</h2>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>م</th>
+              <th>اسم المستخدم / رقم الموبايل</th>
+              <th>الاسم</th>
+              <th>الدور</th>
+              <th>كلمة المرور</th>
+            </tr>
+          </thead>
+          <tbody id="usersTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="new-app.js"></script>
+  <script>
+    const session = App.requireAuth(['admin']);
+    if (session) init();
+
+    function init() {
+      App.renderNavbar(document.getElementById('navbar'), session, [
+        { label: '🏠 الرئيسية', href: 'new-home.html' },
+      ]);
+
+      const tbody = document.getElementById('usersTbody');
+      const users = Object.entries(App.DEMO_USERS);
+      tbody.innerHTML = users.map(([uname, u], i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${App.escHtml(uname)}</td>
+          <td>${App.escHtml(u.name)}</td>
+          <td>${App.escHtml(App.roleLabel(u.role))}</td>
+          <td>••••</td>
+        </tr>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

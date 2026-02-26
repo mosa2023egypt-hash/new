@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اعتماد المواد</title>
+  <link rel="stylesheet" href="new-styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container">
+    <h2 class="page-title">✅ اعتماد / رفض المواد</h2>
+
+    <div id="alertArea"></div>
+
+    <!-- Pending -->
+    <div class="card">
+      <h3 class="mb-2" style="color:var(--accent);">⏳ الطلبات المعلقة</h3>
+      <div class="table-wrapper">
+        <table id="pendingTable">
+          <thead>
+            <tr>
+              <th>م</th>
+              <th>اسم المادة</th>
+              <th>الاسم بالانجليزي</th>
+              <th>وحدة مقترحة</th>
+              <th>مقدم الطلب</th>
+              <th>التاريخ</th>
+              <th>وحدة الاعتماد</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="pendingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- All materials -->
+    <div class="card">
+      <h3 class="mb-2" style="color:var(--primary);">📋 جميع المواد</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>اسم المادة</th><th>الاسم بالانجليزي</th><th>الوحدة</th><th>الحالة</th><th>مقدم الطلب</th><th>التاريخ</th></tr>
+          </thead>
+          <tbody id="allBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="new-app.js"></script>
+  <script>
+    const session = App.requireAuth(['admin','proc_manager','gm']);
+    if (session) init();
+
+    function init() {
+      App.renderNavbar(document.getElementById('navbar'), session, [
+        { label:'🏠 الرئيسية', href:'new-home.html' },
+        { label:'📦 قائمة المواد', href:'new-materials.html' },
+      ]);
+      render();
+    }
+
+    function render() {
+      renderPending();
+      renderAll();
+    }
+
+    function renderPending() {
+      const pending = App.getMaterials().filter(m => m.status === 'pending');
+      const tbody   = document.getElementById('pendingBody');
+      if (!pending.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات معلقة</td></tr>';
+        return;
+      }
+      tbody.innerHTML = pending.map((m, i) => `
+        <tr data-id="${m.id}">
+          <td>${i + 1}</td>
+          <td>${esc(m.name)}</td>
+          <td>${esc(m.nameEn || '-')}</td>
+          <td>${m.unit}</td>
+          <td>${esc(m.requestedBy)}</td>
+          <td>${m.createdAt}</td>
+          <td>
+            <select id="unitSel_${m.id}" class="form-control" style="width:90px;">
+              <option value="طن"${m.unit==='طن'?' selected':''}>طن</option>
+              <option value="كيلو"${m.unit==='كيلو'?' selected':''}>كيلو</option>
+            </select>
+          </td>
+          <td class="d-flex gap-1" style="display:flex;gap:.5rem;">
+            <button class="btn btn-success btn-sm" onclick="approve(${m.id})">✔ اعتماد</button>
+            <button class="btn btn-danger btn-sm"  onclick="reject(${m.id})">✘ رفض</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderAll() {
+      const mats  = App.getMaterials();
+      const tbody = document.getElementById('allBody');
+      if (!mats.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-muted text-center" style="padding:1rem;">لا توجد مواد</td></tr>';
+        return;
+      }
+      const statusMap = { pending:'badge-pending', approved:'badge-approved', rejected:'badge-rejected' };
+      const labelMap  = { pending:'معلق', approved:'معتمد', rejected:'مرفوض' };
+      tbody.innerHTML = mats.map((m, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(m.name)}</td>
+          <td>${esc(m.nameEn || '-')}</td>
+          <td>${m.unit}</td>
+          <td><span class="badge ${statusMap[m.status]}">${labelMap[m.status]}</span></td>
+          <td>${esc(m.requestedBy)}</td>
+          <td>${m.createdAt}</td>
+        </tr>
+      `).join('');
+    }
+
+    function approve(id) {
+      const unit = document.getElementById('unitSel_' + id)?.value || 'طن';
+      App.approveMaterial(id, unit);
+      showAlert('تم اعتماد المادة بنجاح', 'success');
+      render();
+    }
+
+    function reject(id) {
+      if (confirm('هل تريد رفض هذه المادة؟')) {
+        App.rejectMaterial(id);
+        showAlert('تم رفض المادة', 'danger');
+        render();
+      }
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('alertArea');
+      el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+      setTimeout(() => { el.innerHTML = ''; }, 4000);
+    }
+
+    function esc(s) { return App.escHtml(s); }
+  </script>
+</body>
+</html>
