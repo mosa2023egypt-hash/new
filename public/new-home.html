@@ -1,20 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الصفحة الرئيسية</title>
+  <title>Ø§Ù„ØµÙØ­Ø© Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</title>
   <link rel="stylesheet" href="new-styles.css">
 </head>
 <body>
   <nav class="navbar" id="navbar"></nav>
 
   <div class="container">
-    <h2 class="page-title">🏠 الصفحة الرئيسية</h2>
+    <h2 class="page-title">ðŸ  Ø§Ù„ØµÙØ­Ø© Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</h2>
 
     <!-- Period filter (managers/GM can change) -->
     <div id="periodBar" class="period-bar card" style="display:none;">
-      <label>📅 الفترة الزمنية:</label>
+      <label>ðŸ“… Ø§Ù„ÙØªØ±Ø© Ø§Ù„Ø²Ù…Ù†ÙŠØ©:</label>
       <select id="periodSel" class="form-control" style="width:180px;"></select>
     </div>
 
@@ -23,7 +23,7 @@
 
   <script src="new-app.js"></script>
   <script>
-    const session = App.requireAuth(['admin', 'proc_manager', 'gm']);
+    const session = App.requireAuth(['gm']);
     if (session) init();
 
     function init() {
@@ -54,16 +54,16 @@
     function getCards(role) {
       const base = [];
       if (role === 'admin') {
-        base.push({ icon:'👥', title:'إدارة المستخدمين', desc:'عرض وإدارة المستخدمين', href:'new-admin-users.html' });
+        base.push({ icon:'ðŸ‘¥', title:'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†', desc:'Ø¹Ø±Ø¶ ÙˆØ¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†', href:'new-admin-users.html' });
       }
       if (['gm','proc_manager','admin'].includes(role)) {
         base.push(
-          { icon:'📊', title:'تقرير المبيعات',    desc:'عرض تقارير المبيعات',   href:'new-sales-report.html' },
-          { icon:'📋', title:'شيت المبيعات',       desc:'إدخال بيانات المبيعات', href:'new-sales-sheet.html' },
-          { icon:'🛒', title:'تقرير المشتريات',  desc:'عرض تقارير المشتريات', href:'new-proc-report.html' },
-          { icon:'📄', title:'شيت المشتريات',     desc:'إدخال بيانات المشتريات',href:'new-proc-sheet.html' },
-          { icon:'📦', title:'قائمة المواد',       desc:'المواد الموحدة',          href:'new-materials.html' },
-          { icon:'✅', title:'اعتماد المواد',      desc:'قائمة انتظار الاعتماد',   href:'new-materials-approvals.html' },
+          { icon:'ðŸ“Š', title:'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª',    desc:'Ø¹Ø±Ø¶ ØªÙ‚Ø§Ø±ÙŠØ± Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª',   href:'new-sales-report.html' },
+          { icon:'ðŸ“‹', title:'Ø´ÙŠØª Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª',       desc:'Ø¥Ø¯Ø®Ø§Ù„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª', href:'new-sales-sheet.html' },
+          { icon:'ðŸ›’', title:'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª',  desc:'Ø¹Ø±Ø¶ ØªÙ‚Ø§Ø±ÙŠØ± Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª', href:'new-proc-report.html' },
+          { icon:'ðŸ“„', title:'Ø´ÙŠØª Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª',     desc:'Ø¥Ø¯Ø®Ø§Ù„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª',href:'new-proc-sheet.html' },
+          { icon:'ðŸ“¦', title:'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…ÙˆØ§Ø¯',       desc:'Ø§Ù„Ù…ÙˆØ§Ø¯ Ø§Ù„Ù…ÙˆØ­Ø¯Ø©',          href:'new-materials.html' },
+          { icon:'âœ…', title:'Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…ÙˆØ§Ø¯',      desc:'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯',   href:'new-materials-approvals.html' },
         );
       }
       return base;

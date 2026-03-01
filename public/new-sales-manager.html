@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة مدير المبيعات</title>
+  <link rel="stylesheet" href="new-styles.css" />
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container">
+    <h2 class="page-title">🧑‍💼 لوحة مدير المبيعات</h2>
+
+    <div class="card">
+      <h3 class="mb-2" style="color:var(--primary);">👥 موظفو المبيعات</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>م</th>
+              <th>اسم المستخدم</th>
+              <th>الاسم</th>
+              <th>الدور</th>
+            </tr>
+          </thead>
+          <tbody id="salesUsersBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="mb-2" style="color:var(--primary);">🔗 روابط سريعة</h3>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <a class="btn btn-primary" href="new-sales-report.html">📊 تقرير المب��عات</a>
+        <a class="btn btn-primary" href="new-sales-sheet.html">📋 شيت المبيعات</a>
+        <a class="btn btn-primary" href="new-sales-customers-sheet.html">👤 شيت العملاء</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="new-app.js"></script>
+  <script>
+    const session = App.requireAuth(['sales_manager','gm']);
+    if (session) init();
+
+    function init() {
+      App.renderNavbar(document.getElementById('navbar'), session, []);
+      const users = Object.entries(App.DEMO_USERS)
+        .map(([username, u]) => ({ username, ...u }))
+        .filter(u => u.role === 'sales');
+
+      const tbody = document.getElementById('salesUsersBody');
+      tbody.innerHTML = users.length
+        ? users.map((u, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${App.escHtml(u.username)}</td>
+            <td>${App.escHtml(u.name)}</td>
+            <td>${App.escHtml(App.roleLabel(u.role))}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="4" class="text-muted text-center" style="padding:1rem;">لا يوجد موظفين مبيعات</td></tr>';
+    }
+  </script>
+</body>
+</html>

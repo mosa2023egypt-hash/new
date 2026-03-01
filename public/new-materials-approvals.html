@@ -1,34 +1,34 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اعتماد المواد</title>
+  <title>Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…ÙˆØ§Ø¯</title>
   <link rel="stylesheet" href="new-styles.css">
 </head>
 <body>
   <nav class="navbar" id="navbar"></nav>
 
   <div class="container">
-    <h2 class="page-title">✅ اعتماد / رفض المواد</h2>
+    <h2 class="page-title">âœ… Ø§Ø¹ØªÙ…Ø§Ø¯ / Ø±ÙØ¶ Ø§Ù„Ù…ÙˆØ§Ø¯</h2>
 
     <div id="alertArea"></div>
 
     <!-- Pending -->
     <div class="card">
-      <h3 class="mb-2" style="color:var(--accent);">⏳ الطلبات المعلقة</h3>
+      <h3 class="mb-2" style="color:var(--accent);">â³ Ø§Ù„Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ù…Ø¹Ù„Ù‚Ø©</h3>
       <div class="table-wrapper">
         <table id="pendingTable">
           <thead>
             <tr>
-              <th>م</th>
-              <th>اسم المادة</th>
-              <th>الاسم بالانجليزي</th>
-              <th>وحدة مقترحة</th>
-              <th>مقدم الطلب</th>
-              <th>التاريخ</th>
-              <th>وحدة الاعتماد</th>
-              <th>إجراء</th>
+              <th>Ù…</th>
+              <th>Ø§Ø³Ù… Ø§Ù„Ù…Ø§Ø¯Ø©</th>
+              <th>Ø§Ù„Ø§Ø³Ù… Ø¨Ø§Ù„Ø§Ù†Ø¬Ù„ÙŠØ²ÙŠ</th>
+              <th>ÙˆØ­Ø¯Ø© Ù…Ù‚ØªØ±Ø­Ø©</th>
+              <th>Ù…Ù‚Ø¯Ù… Ø§Ù„Ø·Ù„Ø¨</th>
+              <th>Ø§Ù„ØªØ§Ø±ÙŠØ®</th>
+              <th>ÙˆØ­Ø¯Ø© Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯</th>
+              <th>Ø¥Ø¬Ø±Ø§Ø¡</th>
             </tr>
           </thead>
           <tbody id="pendingBody"></tbody>
@@ -38,11 +38,11 @@
 
     <!-- All materials -->
     <div class="card">
-      <h3 class="mb-2" style="color:var(--primary);">📋 جميع المواد</h3>
+      <h3 class="mb-2" style="color:var(--primary);">ðŸ“‹ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…ÙˆØ§Ø¯</h3>
       <div class="table-wrapper">
         <table>
           <thead>
-            <tr><th>م</th><th>اسم المادة</th><th>الاسم بالانجليزي</th><th>الوحدة</th><th>الحالة</th><th>مقدم الطلب</th><th>التاريخ</th></tr>
+            <tr><th>Ù…</th><th>Ø§Ø³Ù… Ø§Ù„Ù…Ø§Ø¯Ø©</th><th>Ø§Ù„Ø§Ø³Ù… Ø¨Ø§Ù„Ø§Ù†Ø¬Ù„ÙŠØ²ÙŠ</th><th>Ø§Ù„ÙˆØ­Ø¯Ø©</th><th>Ø§Ù„Ø­Ø§Ù„Ø©</th><th>Ù…Ù‚Ø¯Ù… Ø§Ù„Ø·Ù„Ø¨</th><th>Ø§Ù„ØªØ§Ø±ÙŠØ®</th></tr>
           </thead>
           <tbody id="allBody"></tbody>
         </table>
@@ -52,13 +52,13 @@
 
   <script src="new-app.js"></script>
   <script>
-    const session = App.requireAuth(['admin','proc_manager','gm']);
+    const session = App.requireAuth(['proc_manager','sales_manager','gm']);
     if (session) init();
 
     function init() {
       App.renderNavbar(document.getElementById('navbar'), session, [
-        { label:'🏠 الرئيسية', href:'new-home.html' },
-        { label:'📦 قائمة المواد', href:'new-materials.html' },
+        { label:'ðŸ  Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©', href:'new-home.html' },
+        { label:'ðŸ“¦ Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…ÙˆØ§Ø¯', href:'new-materials.html' },
       ]);
       render();
     }
@@ -72,7 +72,7 @@
       const pending = App.getMaterials().filter(m => m.status === 'pending');
       const tbody   = document.getElementById('pendingBody');
       if (!pending.length) {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات معلقة</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center" style="padding:1rem;">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨Ø§Øª Ù…Ø¹Ù„Ù‚Ø©</td></tr>';
         return;
       }
       tbody.innerHTML = pending.map((m, i) => `
@@ -85,13 +85,13 @@
           <td>${m.createdAt}</td>
           <td>
             <select id="unitSel_${m.id}" class="form-control" style="width:90px;">
-              <option value="طن"${m.unit==='طن'?' selected':''}>طن</option>
-              <option value="كيلو"${m.unit==='كيلو'?' selected':''}>كيلو</option>
+              <option value="Ø·Ù†"${m.unit==='Ø·Ù†'?' selected':''}>Ø·Ù†</option>
+              <option value="ÙƒÙŠÙ„Ùˆ"${m.unit==='ÙƒÙŠÙ„Ùˆ'?' selected':''}>ÙƒÙŠÙ„Ùˆ</option>
             </select>
           </td>
           <td class="d-flex gap-1" style="display:flex;gap:.5rem;">
-            <button class="btn btn-success btn-sm" onclick="approve(${m.id})">✔ اعتماد</button>
-            <button class="btn btn-danger btn-sm"  onclick="reject(${m.id})">✘ رفض</button>
+            <button class="btn btn-success btn-sm" onclick="approve(${m.id})">âœ” Ø§Ø¹ØªÙ…Ø§Ø¯</button>
+            <button class="btn btn-danger btn-sm"  onclick="reject(${m.id})">âœ˜ Ø±ÙØ¶</button>
           </td>
         </tr>
       `).join('');
@@ -101,11 +101,11 @@
       const mats  = App.getMaterials();
       const tbody = document.getElementById('allBody');
       if (!mats.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-muted text-center" style="padding:1rem;">لا توجد مواد</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-muted text-center" style="padding:1rem;">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…ÙˆØ§Ø¯</td></tr>';
         return;
       }
       const statusMap = { pending:'badge-pending', approved:'badge-approved', rejected:'badge-rejected' };
-      const labelMap  = { pending:'معلق', approved:'معتمد', rejected:'مرفوض' };
+      const labelMap  = { pending:'Ù…Ø¹Ù„Ù‚', approved:'Ù…Ø¹ØªÙ…Ø¯', rejected:'Ù…Ø±ÙÙˆØ¶' };
       tbody.innerHTML = mats.map((m, i) => `
         <tr>
           <td>${i + 1}</td>
@@ -120,16 +120,16 @@
     }
 
     function approve(id) {
-      const unit = document.getElementById('unitSel_' + id)?.value || 'طن';
+      const unit = document.getElementById('unitSel_' + id)?.value || 'Ø·Ù†';
       App.approveMaterial(id, unit);
-      showAlert('تم اعتماد المادة بنجاح', 'success');
+      showAlert('ØªÙ… Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…Ø§Ø¯Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success');
       render();
     }
 
     function reject(id) {
-      if (confirm('هل تريد رفض هذه المادة؟')) {
+      if (confirm('Ù‡Ù„ ØªØ±ÙŠØ¯ Ø±ÙØ¶ Ù‡Ø°Ù‡ Ø§Ù„Ù…Ø§Ø¯Ø©ØŸ')) {
         App.rejectMaterial(id);
-        showAlert('تم رفض المادة', 'danger');
+        showAlert('ØªÙ… Ø±ÙØ¶ Ø§Ù„Ù…Ø§Ø¯Ø©', 'danger');
         render();
       }
     }

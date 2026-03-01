@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تقرير المشتريات</title>
+  <title>ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª</title>
   <link rel="stylesheet" href="new-styles.css">
   <style>
     td.duration { font-weight: 700; color: var(--primary); }
@@ -14,12 +14,12 @@
 
   <div class="container">
     <div class="d-flex justify-between align-center flex-wrap mb-2">
-      <h2 class="page-title">🛒 تقرير المشتريات</h2>
-      <button class="btn btn-primary" id="btnAdd">➕ إضافة صف</button>
+      <h2 class="page-title">ðŸ›’ ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª</h2>
+      <button class="btn btn-primary" id="btnAdd">âž• Ø¥Ø¶Ø§ÙØ© ØµÙ</button>
     </div>
 
     <div class="period-bar card">
-      <label>📅 الفترة:</label>
+      <label>ðŸ“… Ø§Ù„ÙØªØ±Ø©:</label>
       <select id="periodSel" class="form-control" style="width:180px;"></select>
     </div>
 
@@ -28,22 +28,22 @@
         <table>
           <thead>
             <tr>
-              <th>م</th>
-              <th>التاريخ</th>
-              <th>المادة</th>
-              <th>المورد</th>
-              <th>المسئول</th>
-              <th>التليفون</th>
-              <th>الواتس</th>
-              <th>المنشأ</th>
-              <th>التركيز</th>
-              <th>السعر</th>
-              <th>المخزن</th>
-              <th>الملاحظات</th>
-              <th>وقت السؤال</th>
-              <th>وقت الرد</th>
-              <th>مدة الرد (دقيقة)</th>
-              <th>حذف</th>
+              <th>Ù…</th>
+              <th>Ø§Ù„ØªØ§Ø±ÙŠØ®</th>
+              <th>Ø§Ù„Ù…Ø§Ø¯Ø©</th>
+              <th>Ø§Ù„Ù…ÙˆØ±Ø¯</th>
+              <th>Ø§Ù„Ù…Ø³Ø¦ÙˆÙ„</th>
+              <th>Ø§Ù„ØªÙ„ÙŠÙÙˆÙ†</th>
+              <th>Ø§Ù„ÙˆØ§ØªØ³</th>
+              <th>Ø§Ù„Ù…Ù†Ø´Ø£</th>
+              <th>Ø§Ù„ØªØ±ÙƒÙŠØ²</th>
+              <th>Ø§Ù„Ø³Ø¹Ø±</th>
+              <th>Ø§Ù„Ù…Ø®Ø²Ù†</th>
+              <th>Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª</th>
+              <th>ÙˆÙ‚Øª Ø§Ù„Ø³Ø¤Ø§Ù„</th>
+              <th>ÙˆÙ‚Øª Ø§Ù„Ø±Ø¯</th>
+              <th>Ù…Ø¯Ø© Ø§Ù„Ø±Ø¯ (Ø¯Ù‚ÙŠÙ‚Ø©)</th>
+              <th>Ø­Ø°Ù</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -55,7 +55,7 @@
   <script src="new-app.js"></script>
   <script>
     const SHEET = 'proc_report';
-    const session = App.requireAuth(['procurement','proc_manager','admin','gm']);
+    const session = App.requireAuth(['procurement','proc_manager','gm']);
     if (session) init();
 
     let period = App.currentPeriod();
@@ -76,8 +76,8 @@
 
     function navLinks() {
       const links = [];
-      if (App.isManager(session.role)) links.push({ label:'🏠 الرئيسية', href:'new-home.html' });
-      links.push({ label:'📄 شيت المشتريات', href:'new-proc-sheet.html' });
+      if (App.isManager(session.role)) links.push({ label:'ðŸ  Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©', href:'new-home.html' });
+      links.push({ label:'ðŸ“„ Ø´ÙŠØª Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª', href:'new-proc-sheet.html' });
       return links;
     }
 
@@ -94,7 +94,7 @@
       const rows = App.getRows(SHEET, period);
       const tbody = document.getElementById('tbody');
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="16" class="text-muted text-center" style="padding:1.5rem;">لا توجد بيانات لهذه الفترة</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16" class="text-muted text-center" style="padding:1.5rem;">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ù‡Ø°Ù‡ Ø§Ù„ÙØªØ±Ø©</td></tr>';
         return;
       }
       tbody.innerHTML = rows.map((r, i) => rowHtml(r, i + 1)).join('');
@@ -106,20 +106,20 @@
       return `<tr data-id="${r.id}">
         <td>${num}</td>
         <td><input type="date" value="${r.date||''}" onchange="upd(${r.id},'date',this.value)"></td>
-        <td><select onchange="upd(${r.id},'material',this.value)"><option value="">-- اختر --</option>${mats}</select></td>
-        <td><input type="text" value="${esc(r.supplier||'')}" onchange="upd(${r.id},'supplier',this.value)" placeholder="المورد"></td>
-        <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="المسئول"></td>
-        <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="التليفون"></td>
-        <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="الواتس"></td>
-        <td><input type="text" value="${esc(r.origin||'')}" onchange="upd(${r.id},'origin',this.value)" placeholder="المنشأ"></td>
-        <td><input type="text" value="${esc(r.concentration||'')}" onchange="upd(${r.id},'concentration',this.value)" placeholder="التركيز"></td>
+        <td><select onchange="upd(${r.id},'material',this.value)"><option value="">-- Ø§Ø®ØªØ± --</option>${mats}</select></td>
+        <td><input type="text" value="${esc(r.supplier||'')}" onchange="upd(${r.id},'supplier',this.value)" placeholder="Ø§Ù„Ù…ÙˆØ±Ø¯"></td>
+        <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="Ø§Ù„Ù…Ø³Ø¦ÙˆÙ„"></td>
+        <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="Ø§Ù„ØªÙ„ÙŠÙÙˆÙ†"></td>
+        <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="Ø§Ù„ÙˆØ§ØªØ³"></td>
+        <td><input type="text" value="${esc(r.origin||'')}" onchange="upd(${r.id},'origin',this.value)" placeholder="Ø§Ù„Ù…Ù†Ø´Ø£"></td>
+        <td><input type="text" value="${esc(r.concentration||'')}" onchange="upd(${r.id},'concentration',this.value)" placeholder="Ø§Ù„ØªØ±ÙƒÙŠØ²"></td>
         <td><input type="number" step="0.01" value="${r.price||''}" onchange="upd(${r.id},'price',this.value)" placeholder="0"></td>
-        <td><input type="text" value="${esc(r.store||'')}" onchange="upd(${r.id},'store',this.value)" placeholder="المخزن"></td>
-        <td><input type="text" value="${esc(r.notes||'')}" onchange="upd(${r.id},'notes',this.value)" placeholder="ملاحظات"></td>
+        <td><input type="text" value="${esc(r.store||'')}" onchange="upd(${r.id},'store',this.value)" placeholder="Ø§Ù„Ù…Ø®Ø²Ù†"></td>
+        <td><input type="text" value="${esc(r.notes||'')}" onchange="upd(${r.id},'notes',this.value)" placeholder="Ù…Ù„Ø§Ø­Ø¸Ø§Øª"></td>
         <td><input type="time" value="${r.timeAsk||''}" onchange="updTime(${r.id},'timeAsk',this.value)"></td>
         <td><input type="time" value="${r.timeAnswer||''}" onchange="updTime(${r.id},'timeAnswer',this.value)"></td>
-        <td class="duration">${dur !== '' ? dur + ' د' : ''}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="del(${r.id})">🗑</button></td>
+        <td class="duration">${dur !== '' ? dur + ' Ø¯' : ''}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="del(${r.id})">ðŸ—‘</button></td>
       </tr>`;
     }
 
@@ -138,7 +138,7 @@
     }
 
     function del(id) {
-      if (confirm('حذف هذا الصف؟')) { App.deleteRow(SHEET, period, id); render(); }
+      if (confirm('Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„ØµÙØŸ')) { App.deleteRow(SHEET, period, id); render(); }
     }
 
     function esc(s) { return App.escHtml(s); }
