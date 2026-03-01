@@ -1,20 +1,20 @@
-﻿<!DOCTYPE html>
-<html lang="en" dir="ltr">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
+  <title>الصفحة الرئيسية</title>
   <link rel="stylesheet" href="new-styles.css">
 </head>
 <body>
   <nav class="navbar" id="navbar"></nav>
 
   <div class="container">
-    <h2 class="page-title">Home</h2>
+    <h2 class="page-title">🏠 الصفحة الرئيسية</h2>
 
     <!-- Period filter (managers/GM can change) -->
     <div id="periodBar" class="period-bar card" style="display:none;">
-      <label> :</label>
+      <label>📅 الفترة الزمنية:</label>
       <select id="periodSel" class="form-control" style="width:180px;"></select>
     </div>
 
@@ -23,7 +23,7 @@
 
   <script src="new-app.js"></script>
   <script>
-    const session = App.requireAuth(['gm']);
+    const session = App.requireAuth(['admin', 'proc_manager', 'gm']);
     if (session) init();
 
     function init() {
@@ -54,16 +54,16 @@
     function getCards(role) {
       const base = [];
       if (role === 'admin') {
-        base.push({ icon:' title:' ', desc:'  ', href:'new-admin-users.html' });
+        base.push({ icon:'👥', title:'إدارة المستخدمين', desc:'عرض وإدارة المستخدمين', href:'new-admin-users.html' });
       }
       if (['gm','proc_manager','admin'].includes(role)) {
         base.push(
-          { icon:' title:' ',    desc:'  ',   href:'new-sales-report.html' },
-          { icon:' title:' ',       desc:'  ', href:'new-sales-sheet.html' },
-          { icon:' title:' ',  desc:'  ', href:'new-proc-report.html' },
-          { icon:' title:' ',     desc:'  ',href:'new-proc-sheet.html' },
-          { icon:' title:' ',       desc:' ',          href:'new-materials.html' },
-          { icon:'', title:' ',      desc:'  ',   href:'new-materials-approvals.html' },
+          { icon:'📊', title:'تقرير المبيعات',    desc:'عرض تقارير المبيعات',   href:'new-sales-report.html' },
+          { icon:'📋', title:'شيت المبيعات',       desc:'إدخال بيانات المبيعات', href:'new-sales-sheet.html' },
+          { icon:'🛒', title:'تقرير المشتريات',  desc:'عرض تقارير المشتريات', href:'new-proc-report.html' },
+          { icon:'📄', title:'شيت المشتريات',     desc:'إدخال بيانات المشتريات',href:'new-proc-sheet.html' },
+          { icon:'📦', title:'قائمة المواد',       desc:'المواد الموحدة',          href:'new-materials.html' },
+          { icon:'✅', title:'اعتماد المواد',      desc:'قائمة انتظار الاعتماد',   href:'new-materials-approvals.html' },
         );
       }
       return base;
@@ -71,7 +71,3 @@
   </script>
 </body>
 </html>
-
-
-
-

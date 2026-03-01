@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
-<html lang="en" dir="ltr">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Materials</title>
+  <title>قائمة المواد الموحدة</title>
   <link rel="stylesheet" href="new-styles.css">
 </head>
 <body>
@@ -11,24 +11,24 @@
 
   <div class="container">
     <div class="d-flex justify-between align-center flex-wrap mb-2">
-      <h2 class="page-title">Materials</h2>
-      <button class="btn btn-primary" id="btnAdd">Add</button>
+      <h2 class="page-title">📦 قائمة المواد الموحدة</h2>
+      <button class="btn btn-primary" id="btnAdd">➕ طلب إضافة مادة</button>
     </div>
 
     <div id="alertArea"></div>
 
     <!-- Approved materials -->
     <div class="card">
-      <h3 class="mb-2" style="color:var(--primary);">  </h3>
+      <h3 class="mb-2" style="color:var(--primary);">✅ المواد المعتمدة</h3>
       <div class="table-wrapper">
         <table id="approvedTable">
           <thead>
             <tr>
-              <th></th>
-              <th> </th>
-              <th> </th>
-              <th> </th>
-              <th id="unitChangeCol" style="display:none;"> </th>
+              <th>م</th>
+              <th>اسم المادة</th>
+              <th>الاسم بالانجليزي</th>
+              <th>وحدة التسعير</th>
+              <th id="unitChangeCol" style="display:none;">تغيير الوحدة</th>
             </tr>
           </thead>
           <tbody id="approvedBody"></tbody>
@@ -38,11 +38,11 @@
 
     <!-- My pending requests -->
     <div class="card" id="myPendingCard">
-      <h3 class="mb-2" style="color:var(--accent);">  </h3>
+      <h3 class="mb-2" style="color:var(--accent);">⏳ طلباتي المعلقة</h3>
       <div class="table-wrapper">
         <table>
           <thead>
-            <tr><th></th><th> </th><th> </th><th></th><th> </th></tr>
+            <tr><th>م</th><th>اسم المادة</th><th>الاسم بالانجليزي</th><th>الحالة</th><th>تاريخ الطلب</th></tr>
           </thead>
           <tbody id="pendingBody"></tbody>
         </table>
@@ -53,26 +53,26 @@
   <!-- Add Material Modal -->
   <div class="modal-backdrop" id="addModal">
     <div class="modal">
-      <h3>    </h3>
+      <h3>➕ طلب إضافة مادة جديدة</h3>
       <div class="form-group">
-        <label>  () *</label>
-        <input type="text" id="matName" class="form-control" placeholder="   ">
+        <label>اسم المادة (عربي) *</label>
+        <input type="text" id="matName" class="form-control" placeholder="أدخل اسم المادة بالعربي">
       </div>
       <div class="form-group">
-        <label> </label>
+        <label>الاسم بالانجليزي</label>
         <input type="text" id="matNameEn" class="form-control" placeholder="Material name in English">
       </div>
       <div class="form-group">
-        <label> </label>
+        <label>وحدة التسعير</label>
         <select id="matUnit" class="form-control">
-          <option value="" selected> ()</option>
-          <option value=""></option>
+          <option value="طن" selected>طن (افتراضي)</option>
+          <option value="كيلو">كيلو</option>
         </select>
       </div>
       <div id="addError" class="login-error"></div>
       <div class="modal-footer">
-        <button class="btn btn-primary" id="btnSubmit">Save</button>
-        <button class="btn btn-outline" id="btnCancel">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmit">إرسال الطلب</button>
+        <button class="btn btn-outline" id="btnCancel">إلغاء</button>
       </div>
     </div>
   </div>
@@ -86,7 +86,7 @@
       App.renderNavbar(document.getElementById('navbar'), session, navLinks());
 
       // Show manager-only column
-      if (App.canApproveMaterials(session.role)) {
+      if (App.canApprove(session.role)) {
         document.getElementById('unitChangeCol').style.display = '';
       }
 
@@ -97,7 +97,7 @@
         document.getElementById('addError').classList.remove('show');
         document.getElementById('matName').value = '';
         document.getElementById('matNameEn').value = '';
-        document.getElementById('matUnit').value = '';
+        document.getElementById('matUnit').value = 'طن';
       });
       document.getElementById('btnCancel').addEventListener('click', () => {
         document.getElementById('addModal').classList.remove('open');
@@ -108,8 +108,8 @@
     function navLinks() {
       const links = [];
       if (App.isManager(session.role)) {
-        links.push({ label:'Home', href:'new-home.html' });
-        links.push({ label:'  ', href:'new-materials-approvals.html' });
+        links.push({ label:'🏠 الرئيسية', href:'new-home.html' });
+        links.push({ label:'✅ اعتماد المواد', href:'new-materials-approvals.html' });
       }
       return links;
     }
@@ -122,9 +122,9 @@
     function renderApproved() {
       const mats = App.getMaterials().filter(m => m.status === 'approved');
       const tbody = document.getElementById('approvedBody');
-      const canChange = App.canApproveMaterials(session.role);
+      const canChange = App.canApprove(session.role);
       if (!mats.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center" style="padding:1rem;">    </td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center" style="padding:1rem;">لا توجد مواد معتمدة بعد</td></tr>';
         return;
       }
       tbody.innerHTML = mats.map((m, i) => `
@@ -135,8 +135,8 @@
           <td><span class="badge badge-approved">${m.unit}</span></td>
           ${canChange ? `<td>
             <select class="form-control" style="width:100px;" onchange="changeUnit(${m.id},this.value)">
-              <option value=""${m.unit===''?' selected':''}></option>
-              <option value=""${m.unit===''?' selected':''}></option>
+              <option value="طن"${m.unit==='طن'?' selected':''}>طن</option>
+              <option value="كيلو"${m.unit==='كيلو'?' selected':''}>كيلو</option>
             </select>
           </td>` : ''}
         </tr>
@@ -149,7 +149,7 @@
       );
       const tbody = document.getElementById('pendingBody');
       if (!mine.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center" style="padding:1rem;">   </td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات معلقة</td></tr>';
         return;
       }
       tbody.innerHTML = mine.map((m, i) => `
@@ -157,7 +157,7 @@
           <td>${i + 1}</td>
           <td>${esc(m.name)}</td>
           <td>${esc(m.nameEn || '-')}</td>
-          <td><span class="badge badge-pending"> </span></td>
+          <td><span class="badge badge-pending">في الانتظار</span></td>
           <td>${m.createdAt}</td>
         </tr>
       `).join('');
@@ -167,7 +167,7 @@
       const mats = App.getMaterials();
       const m = mats.find(x => x.id === id);
       if (m) { m.unit = unit; App.saveMaterials(mats); }
-      showAlert('    ', 'success');
+      showAlert('تم تغيير وحدة التسعير بنجاح', 'success');
     }
 
     function submitMaterial() {
@@ -177,7 +177,7 @@
       const errEl  = document.getElementById('addError');
 
       if (!name) {
-        errEl.textContent = '   ';
+        errEl.textContent = 'يرجى إدخال اسم المادة';
         errEl.classList.add('show');
         return;
       }
@@ -185,14 +185,14 @@
       // Check duplicate
       const existing = App.getMaterials().find(m => m.name === name);
       if (existing) {
-        errEl.textContent = '   ';
+        errEl.textContent = 'هذه المادة موجودة بالفعل';
         errEl.classList.add('show');
         return;
       }
 
       App.addMaterialRequest(name, nameEn, unit, session.username);
       document.getElementById('addModal').classList.remove('open');
-      showAlert('     .   .', 'success');
+      showAlert('تم إرسال طلب إضافة المادة بنجاح. في انتظار الاعتماد.', 'success');
       render();
     }
 
@@ -206,7 +206,3 @@
   </script>
 </body>
 </html>
-
-
-
-

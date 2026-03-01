@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
-<html lang="en" dir="ltr">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Procurement Sheet</title>
+  <title>شيت المشتريات</title>
   <link rel="stylesheet" href="new-styles.css">
 </head>
 <body>
@@ -11,12 +11,12 @@
 
   <div class="container">
     <div class="d-flex justify-between align-center flex-wrap mb-2">
-      <h2 class="page-title">Procurement Sheet</h2>
-      <button class="btn btn-primary" id="btnAdd">Add</button>
+      <h2 class="page-title">📄 شيت المشتريات</h2>
+      <button class="btn btn-primary" id="btnAdd">➕ إضافة صف</button>
     </div>
 
     <div class="period-bar card">
-      <label>:</label>
+      <label>📅 الفترة:</label>
       <select id="periodSel" class="form-control" style="width:180px;"></select>
     </div>
 
@@ -25,22 +25,22 @@
         <table>
           <thead>
             <tr>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th> </th>
-              <th> </th>
-              <th> </th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
+              <th>م</th>
+              <th>التاريخ</th>
+              <th>المادة</th>
+              <th>الاسم بالانجليزي</th>
+              <th>نوع المادة</th>
+              <th>الاسم التجاري</th>
+              <th>التركيز</th>
+              <th>المنشأ</th>
+              <th>السعر</th>
+              <th>المورد</th>
+              <th>المسئول</th>
+              <th>التليفون</th>
+              <th>الواتس</th>
+              <th>المخزن</th>
+              <th>الملاحظات</th>
+              <th>حذف</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -52,7 +52,7 @@
   <script src="new-app.js"></script>
   <script>
     const SHEET = 'proc_sheet';
-    const session = App.requireAuth(['procurement','proc_manager','gm']);
+    const session = App.requireAuth(['procurement','proc_manager','admin','gm']);
     if (session) init();
 
     let period = App.currentPeriod();
@@ -73,8 +73,8 @@
 
     function navLinks() {
       const links = [];
-      if (App.isManager(session.role)) links.push({ label:'Home', href:'new-home.html' });
-      links.push({ label:'Procurement Report', href:'new-proc-report.html' });
+      if (App.isManager(session.role)) links.push({ label:'🏠 الرئيسية', href:'new-home.html' });
+      links.push({ label:'🛒 تقرير المشتريات', href:'new-proc-report.html' });
       return links;
     }
 
@@ -82,7 +82,7 @@
       const rows = App.getRows(SHEET, period);
       const tbody = document.getElementById('tbody');
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="16" class="text-muted text-center" style="padding:1.5rem;">    </td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16" class="text-muted text-center" style="padding:1.5rem;">لا توجد بيانات لهذه الفترة</td></tr>';
         return;
       }
       tbody.innerHTML = rows.map((r, i) => rowHtml(r, i + 1)).join('');
@@ -96,20 +96,20 @@
       return `<tr data-id="${r.id}">
         <td>${num}</td>
         <td><input type="date" value="${r.date||''}" onchange="upd(${r.id},'date',this.value)"></td>
-        <td><select onchange="onMatChange(${r.id},this.value)"><option value="">--  --</option>${matOpts}</select></td>
-        <td><input type="text" value="${esc(matEn)}" readonly placeholder=""></td>
-        <td><input type="text" value="${esc(r.matType||'')}" onchange="upd(${r.id},'matType',this.value)" placeholder=" "></td>
-        <td><input type="text" value="${esc(r.tradeName||'')}" onchange="upd(${r.id},'tradeName',this.value)" placeholder=" "></td>
-        <td><input type="text" value="${esc(r.concentration||'')}" onchange="upd(${r.id},'concentration',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.origin||'')}" onchange="upd(${r.id},'origin',this.value)" placeholder=""></td>
+        <td><select onchange="onMatChange(${r.id},this.value)"><option value="">-- اختر --</option>${matOpts}</select></td>
+        <td><input type="text" value="${esc(matEn)}" readonly placeholder="تلقائي"></td>
+        <td><input type="text" value="${esc(r.matType||'')}" onchange="upd(${r.id},'matType',this.value)" placeholder="نوع المادة"></td>
+        <td><input type="text" value="${esc(r.tradeName||'')}" onchange="upd(${r.id},'tradeName',this.value)" placeholder="الاسم التجاري"></td>
+        <td><input type="text" value="${esc(r.concentration||'')}" onchange="upd(${r.id},'concentration',this.value)" placeholder="التركيز"></td>
+        <td><input type="text" value="${esc(r.origin||'')}" onchange="upd(${r.id},'origin',this.value)" placeholder="المنشأ"></td>
         <td><input type="number" step="0.01" value="${r.price||''}" onchange="upd(${r.id},'price',this.value)" placeholder="0"></td>
-        <td><input type="text" value="${esc(r.supplier||'')}" onchange="upd(${r.id},'supplier',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.store||'')}" onchange="upd(${r.id},'store',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.notes||'')}" onchange="upd(${r.id},'notes',this.value)" placeholder=""></td>
-        <td><button class="btn btn-danger btn-sm" onclick="del(${r.id})">button></td>
+        <td><input type="text" value="${esc(r.supplier||'')}" onchange="upd(${r.id},'supplier',this.value)" placeholder="المورد"></td>
+        <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="المسئول"></td>
+        <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="التليفون"></td>
+        <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="الواتس"></td>
+        <td><input type="text" value="${esc(r.store||'')}" onchange="upd(${r.id},'store',this.value)" placeholder="المخزن"></td>
+        <td><input type="text" value="${esc(r.notes||'')}" onchange="upd(${r.id},'notes',this.value)" placeholder="ملاحظات"></td>
+        <td><button class="btn btn-danger btn-sm" onclick="del(${r.id})">🗑</button></td>
       </tr>`;
     }
 
@@ -130,14 +130,10 @@
     }
 
     function del(id) {
-      if (confirm('  ')) { App.deleteRow(SHEET, period, id); render(); }
+      if (confirm('حذف هذا الصف؟')) { App.deleteRow(SHEET, period, id); render(); }
     }
 
     function esc(s) { return App.escHtml(s); }
   </script>
 </body>
 </html>
-
-
-
-

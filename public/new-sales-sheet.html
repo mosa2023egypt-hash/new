@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
-<html lang="en" dir="ltr">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sales Sheet</title>
+  <title>شيت المبيعات</title>
   <link rel="stylesheet" href="new-styles.css">
 </head>
 <body>
@@ -11,12 +11,12 @@
 
   <div class="container">
     <div class="d-flex justify-between align-center flex-wrap mb-2">
-      <h2 class="page-title">Sales Sheet</h2>
-      <button class="btn btn-primary" id="btnAdd">Add</button>
+      <h2 class="page-title">📋 شيت المبيعات</h2>
+      <button class="btn btn-primary" id="btnAdd">➕ إضافة صف</button>
     </div>
 
     <div class="period-bar card">
-      <label>:</label>
+      <label>📅 الفترة:</label>
       <select id="periodSel" class="form-control" style="width:180px;"></select>
     </div>
 
@@ -25,26 +25,26 @@
         <table>
           <thead>
             <tr>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th> </th>
-              <th> </th>
-              <th></th>
-              <th> </th>
-              <th></th>
-              <th> </th>
-              <th> </th>
-              <th></th>
-              <th> </th>
-              <th></th>
-              <th></th>
-              <th></th>
+              <th>م</th>
+              <th>التاريخ</th>
+              <th>الاسم</th>
+              <th>المسئول</th>
+              <th>التليفون</th>
+              <th>واتساب</th>
+              <th>المكان</th>
+              <th>المادة</th>
+              <th>الاسم بالانجليزي</th>
+              <th>الاسم التجاري</th>
+              <th>المنشأ</th>
+              <th>الكمية بالكيلو</th>
+              <th>السعر</th>
+              <th>طريقة التواصل</th>
+              <th>رد العميل</th>
+              <th>ملاحظات</th>
+              <th>ملاحظات الشركة</th>
+              <th>تركيز</th>
+              <th>الموظف</th>
+              <th>حذف</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -56,10 +56,10 @@
   <script src="new-app.js"></script>
   <script>
     const SHEET = 'sales_sheet';
-    const CONTACT_METHODS  = ['','','','',''];
-    const CLIENT_RESPONSES = ['','','',' ','  '];
+    const CONTACT_METHODS  = ['واتساب','تليفون','إيميل','زيارة','أخرى'];
+    const CLIENT_RESPONSES = ['إيجابي','سلبي','مؤجل','لا رد','عرض سعر مطلوب'];
 
-    const session = App.requireAuth(['sales','sales_manager','gm']);
+    const session = App.requireAuth(['sales','admin','proc_manager','gm']);
     if (session) init();
 
     let period = App.currentPeriod();
@@ -80,8 +80,8 @@
 
     function navLinks() {
       const links = [];
-      if (App.isManager(session.role)) links.push({ label:'Home', href:'new-home.html' });
-      links.push({ label:'Sales Report', href:'new-sales-report.html' });
+      if (App.isManager(session.role)) links.push({ label:'🏠 الرئيسية', href:'new-home.html' });
+      links.push({ label:'📊 تقرير المبيعات', href:'new-sales-report.html' });
       return links;
     }
 
@@ -89,7 +89,7 @@
       const rows = App.getRows(SHEET, period);
       const tbody = document.getElementById('tbody');
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="20" class="text-muted text-center" style="padding:1.5rem;">    </td></tr>';
+        tbody.innerHTML = '<tr><td colspan="20" class="text-muted text-center" style="padding:1.5rem;">لا توجد بيانات لهذه الفترة</td></tr>';
         return;
       }
       tbody.innerHTML = rows.map((r, i) => rowHtml(r, i + 1)).join('');
@@ -103,24 +103,24 @@
       return `<tr data-id="${r.id}">
         <td>${num}</td>
         <td><input type="date" value="${r.date||''}" onchange="upd(${r.id},'date',this.value)"></td>
-        <td><input type="text" value="${esc(r.name||'')}" onchange="upd(${r.id},'name',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.place||'')}" onchange="upd(${r.id},'place',this.value)" placeholder=""></td>
-        <td><select onchange="onMatChange(${r.id},this.value)"><option value="">--  --</option>${matOpts}</select></td>
-        <td><input type="text" value="${esc(matEn)}" readonly placeholder=""></td>
-        <td><input type="text" value="${esc(r.tradeName||'')}" onchange="upd(${r.id},'tradeName',this.value)" placeholder=" "></td>
-        <td><input type="text" value="${esc(r.origin||'')}" onchange="upd(${r.id},'origin',this.value)" placeholder=""></td>
+        <td><input type="text" value="${esc(r.name||'')}" onchange="upd(${r.id},'name',this.value)" placeholder="الاسم"></td>
+        <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="المسئول"></td>
+        <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="التليفون"></td>
+        <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="واتساب"></td>
+        <td><input type="text" value="${esc(r.place||'')}" onchange="upd(${r.id},'place',this.value)" placeholder="المكان"></td>
+        <td><select onchange="onMatChange(${r.id},this.value)"><option value="">-- اختر --</option>${matOpts}</select></td>
+        <td><input type="text" value="${esc(matEn)}" readonly placeholder="تلقائي"></td>
+        <td><input type="text" value="${esc(r.tradeName||'')}" onchange="upd(${r.id},'tradeName',this.value)" placeholder="الاسم التجاري"></td>
+        <td><input type="text" value="${esc(r.origin||'')}" onchange="upd(${r.id},'origin',this.value)" placeholder="المنشأ"></td>
         <td><input type="number" step="0.001" value="${r.qtyKg||''}" onchange="upd(${r.id},'qtyKg',this.value)" placeholder="0"></td>
         <td><input type="number" step="0.01" value="${r.price||''}" onchange="upd(${r.id},'price',this.value)" placeholder="0"></td>
         <td><select onchange="upd(${r.id},'contact',this.value)">${CONTACT_METHODS.map(c=>`<option${r.contact===c?' selected':''}>${c}</option>`).join('')}</select></td>
         <td><select onchange="upd(${r.id},'response',this.value)">${CLIENT_RESPONSES.map(c=>`<option${r.response===c?' selected':''}>${c}</option>`).join('')}</select></td>
-        <td><input type="text" value="${esc(r.notes||'')}" onchange="upd(${r.id},'notes',this.value)" placeholder=""></td>
-        <td><input type="text" value="${esc(r.companyNotes||'')}" onchange="upd(${r.id},'companyNotes',this.value)" placeholder=" "></td>
-        <td><input type="text" value="${esc(r.concentration||'')}" onchange="upd(${r.id},'concentration',this.value)" placeholder=""></td>
+        <td><input type="text" value="${esc(r.notes||'')}" onchange="upd(${r.id},'notes',this.value)" placeholder="ملاحظات"></td>
+        <td><input type="text" value="${esc(r.companyNotes||'')}" onchange="upd(${r.id},'companyNotes',this.value)" placeholder="ملاحظات الشركة"></td>
+        <td><input type="text" value="${esc(r.concentration||'')}" onchange="upd(${r.id},'concentration',this.value)" placeholder="التركيز"></td>
         <td>${esc(session.name)}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="del(${r.id})">button></td>
+        <td><button class="btn btn-danger btn-sm" onclick="del(${r.id})">🗑</button></td>
       </tr>`;
     }
 
@@ -141,14 +141,10 @@
     }
 
     function del(id) {
-      if (confirm('  ')) { App.deleteRow(SHEET, period, id); render(); }
+      if (confirm('حذف هذا الصف؟')) { App.deleteRow(SHEET, period, id); render(); }
     }
 
     function esc(s) { return App.escHtml(s); }
   </script>
 </body>
 </html>
-
-
-
-
