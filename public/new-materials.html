@@ -107,9 +107,12 @@
 
     function navLinks() {
       const links = [];
-      if (App.isManager(session.role)) {
-        links.push({ label:'🏠 الرئيسية', href:'new-home.html' });
-        links.push({ label:'✅ اعتماد المواد', href:'new-materials-approvals.html' });
+      const home = App.homeUrl(session.role);
+      if (home) {
+        links.push({ label:'🏠 الرئيسية', href: home });
+        if (App.canApprove(session.role)) {
+          links.push({ label:'✅ اعتماد المواد', href:'new-materials-approvals.html' });
+        }
       }
       return links;
     }

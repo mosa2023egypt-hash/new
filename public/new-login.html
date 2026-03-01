@@ -18,6 +18,15 @@
         رقم الموبايل أو كلمة المرور غير صحيحة
       </div>
 
+      <!-- Already logged in banner -->
+      <div id="alreadyLoggedIn" style="display:none; margin-bottom:1rem; padding:1rem; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; text-align:center;">
+        <p style="margin-bottom:.75rem;">أنت مسجل الدخول بالفعل كـ <strong id="loggedUserName"></strong></p>
+        <div style="display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap;">
+          <button id="btnContinue" class="btn btn-primary">متابعة إلى لوحة التحكم</button>
+          <button id="btnSwitchUser" class="btn btn-outline">تسجيل الخروج / تغيير المستخدم</button>
+        </div>
+      </div>
+
       <form id="loginForm">
         <div class="form-group">
           <label for="username">رقم الموبايل / اسم المستخدم</label>
@@ -54,10 +63,21 @@
 
   <script src="new-app.js"></script>
   <script>
-    // If already logged in, redirect
+    // If already logged in, show options instead of auto-redirect
     (function () {
       const s = App.getSession();
-      if (s) App.redirectByRole(s.role);
+      if (s) {
+        const banner = document.getElementById('alreadyLoggedIn');
+        document.getElementById('loggedUserName').textContent = s.name + ' (' + App.roleLabel(s.role) + ')';
+        banner.style.display = 'block';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('btnContinue').addEventListener('click', function () {
+          App.redirectByRole(s.role);
+        });
+        document.getElementById('btnSwitchUser').addEventListener('click', function () {
+          App.logout();
+        });
+      }
     }());
 
     document.getElementById('loginForm').addEventListener('submit', function (e) {

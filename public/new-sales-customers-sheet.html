@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قائمة العملاء</title>
+  <link rel="stylesheet" href="new-styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container">
+    <div class="d-flex justify-between align-center flex-wrap mb-2">
+      <h2 class="page-title">🧑‍🤝‍🧑 قائمة العملاء</h2>
+      <button class="btn btn-primary" id="btnAdd">➕ إضافة عميل</button>
+    </div>
+
+    <div id="alertArea"></div>
+
+    <!-- Active customers -->
+    <div class="card">
+      <h3 class="mb-2" style="color:var(--primary);">✅ العملاء النشطون</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>م</th>
+              <th>الاسم</th>
+              <th>التليفون</th>
+              <th>واتساب</th>
+              <th>البريد</th>
+              <th>العنوان</th>
+              <th>ملاحظات</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="activeBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pending approvals (managers see all, employees see own) -->
+    <div class="card" id="pendingCard">
+      <h3 class="mb-2" style="color:var(--accent);">⏳ طلبات قيد المراجعة</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>م</th>
+              <th>الاسم</th>
+              <th>التليفون</th>
+              <th>مقدم الطلب</th>
+              <th>التاريخ</th>
+              <th id="approvalActionsHeader" style="display:none;">إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="pendingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Deactivation requests (managers only) -->
+    <div class="card" id="deactivateCard" style="display:none;">
+      <h3 class="mb-2" style="color:#dc2626;">🚫 طلبات الإيقاف</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>م</th>
+              <th>الاسم</th>
+              <th>مقدم طلب الإيقاف</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="deactivateBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Customer Modal -->
+  <div class="modal-backdrop" id="customerModal">
+    <div class="modal">
+      <h3 id="modalTitle">➕ إضافة عميل جديد</h3>
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label>الاسم *</label>
+        <input type="text" id="fName" class="form-control" placeholder="اسم العميل">
+      </div>
+      <div class="form-group">
+        <label>التليفون</label>
+        <input type="text" id="fPhone" class="form-control" placeholder="رقم التليفون">
+      </div>
+      <div class="form-group">
+        <label>واتساب</label>
+        <input type="text" id="fWhatsapp" class="form-control" placeholder="رقم واتساب">
+      </div>
+      <div class="form-group">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="fEmail" class="form-control" placeholder="البريد الإلكتروني">
+      </div>
+      <div class="form-group">
+        <label>العنوان</label>
+        <input type="text" id="fAddress" class="form-control" placeholder="العنوان">
+      </div>
+      <div class="form-group">
+        <label>ملاحظات</label>
+        <input type="text" id="fNotes" class="form-control" placeholder="ملاحظات">
+      </div>
+      <div id="modalError" class="login-error"></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnSubmit">حفظ</button>
+        <button class="btn btn-outline" id="btnCancel">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="new-app.js"></script>
+  <script>
+    const session = App.requireAuth(['sales', 'sales_manager', 'admin', 'gm']);
+    if (session) init();
+
+    const isManager = ['sales_manager', 'admin', 'gm'].includes(session && session.role);
+
+    function init() {
+      App.renderNavbar(document.getElementById('navbar'), session, navLinks());
+
+      if (isManager) {
+        document.getElementById('deactivateCard').style.display = '';
+        document.getElementById('approvalActionsHeader').style.display = '';
+      }
+
+      render();
+
+      document.getElementById('btnAdd').addEventListener('click', openAdd);
+      document.getElementById('btnCancel').addEventListener('click', closeModal);
+      document.getElementById('btnSubmit').addEventListener('click', submitForm);
+    }
+
+    function navLinks() {
+      const links = [];
+      const home = App.homeUrl(session.role);
+      if (home) links.push({ label:'🏠 الرئيسية', href: home });
+      links.push({ label:'📊 تقرير المبيعات', href:'new-sales-report.html' });
+      links.push({ label:'📋 شيت المبيعات', href:'new-sales-sheet.html' });
+      return links;
+    }
+
+    function render() {
+      renderActive();
+      renderPending();
+      if (isManager) renderDeactivate();
+    }
+
+    function renderActive() {
+      const list = App.getCustomers().filter(c => c.status === 'active');
+      const tbody = document.getElementById('activeBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center" style="padding:1rem;">لا يوجد عملاء نشطون بعد</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((c, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.phone || '-')}</td>
+          <td>${esc(c.whatsapp || '-')}</td>
+          <td>${esc(c.email || '-')}</td>
+          <td>${esc(c.address || '-')}</td>
+          <td>${esc(c.notes || '-')}</td>
+          <td style="display:flex;gap:.4rem;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="openEdit(${c.id})">✏️ تعديل</button>
+            ${isManager
+              ? `<button class="btn btn-danger btn-sm" onclick="deactivateDirect(${c.id})">🚫 إيقاف</button>`
+              : `<button class="btn btn-danger btn-sm" onclick="requestDeactivate(${c.id})">🚫 طلب إيقاف</button>`
+            }
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderPending() {
+      const all = App.getCustomers().filter(c => c.status === 'pending');
+      const list = isManager ? all : all.filter(c => c.requestedBy === session.username);
+      const tbody = document.getElementById('pendingBody');
+      if (!list.length) {
+        tbody.innerHTML = `<tr><td colspan="${isManager ? 6 : 5}" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات معلقة</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = list.map((c, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.phone || '-')}</td>
+          <td>${esc(c.requestedBy)}</td>
+          <td>${esc(c.createdAt)}</td>
+          ${isManager ? `<td style="display:flex;gap:.4rem;">
+            <button class="btn btn-success btn-sm" onclick="approve(${c.id})">✔ موافقة</button>
+            <button class="btn btn-danger btn-sm" onclick="reject(${c.id})">✘ رفض</button>
+          </td>` : ''}
+        </tr>
+      `).join('');
+    }
+
+    function renderDeactivate() {
+      const list = App.getCustomers().filter(c => c.deactivateRequest);
+      const tbody = document.getElementById('deactivateBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات إيقاف</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((c, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.deactivateRequestedBy || '-')}</td>
+          <td style="display:flex;gap:.4rem;">
+            <button class="btn btn-success btn-sm" onclick="approveDeactivate(${c.id})">✔ موافقة الإيقاف</button>
+            <button class="btn btn-outline btn-sm" onclick="rejectDeactivate(${c.id})">✘ رفض</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openAdd() {
+      document.getElementById('editId').value = '';
+      document.getElementById('modalTitle').textContent = '➕ إضافة عميل جديد';
+      document.getElementById('fName').value = '';
+      document.getElementById('fPhone').value = '';
+      document.getElementById('fWhatsapp').value = '';
+      document.getElementById('fEmail').value = '';
+      document.getElementById('fAddress').value = '';
+      document.getElementById('fNotes').value = '';
+      document.getElementById('modalError').classList.remove('show');
+      document.getElementById('customerModal').classList.add('open');
+    }
+
+    function openEdit(id) {
+      const c = App.getCustomers().find(x => x.id === id);
+      if (!c) return;
+      document.getElementById('editId').value = id;
+      document.getElementById('modalTitle').textContent = '✏️ تعديل بيانات العميل';
+      document.getElementById('fName').value = c.name || '';
+      document.getElementById('fPhone').value = c.phone || '';
+      document.getElementById('fWhatsapp').value = c.whatsapp || '';
+      document.getElementById('fEmail').value = c.email || '';
+      document.getElementById('fAddress').value = c.address || '';
+      document.getElementById('fNotes').value = c.notes || '';
+      document.getElementById('modalError').classList.remove('show');
+      document.getElementById('customerModal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('customerModal').classList.remove('open');
+    }
+
+    function submitForm() {
+      const name = document.getElementById('fName').value.trim();
+      const errEl = document.getElementById('modalError');
+      if (!name) {
+        errEl.textContent = 'يرجى إدخال اسم العميل';
+        errEl.classList.add('show');
+        return;
+      }
+      const data = {
+        name,
+        phone:    document.getElementById('fPhone').value.trim(),
+        whatsapp: document.getElementById('fWhatsapp').value.trim(),
+        email:    document.getElementById('fEmail').value.trim(),
+        address:  document.getElementById('fAddress').value.trim(),
+        notes:    document.getElementById('fNotes').value.trim(),
+      };
+      const editId = document.getElementById('editId').value;
+      if (editId) {
+        App.updateCustomer(Number(editId), data);
+        showAlert('تم تعديل بيانات العميل', 'success');
+      } else {
+        App.addCustomer(data, session.username);
+        showAlert('تم إرسال طلب إضافة العميل. في انتظار الموافقة.', 'success');
+      }
+      closeModal();
+      render();
+    }
+
+    function approve(id) {
+      App.approveCustomer(id);
+      showAlert('تم اعتماد العميل بنجاح', 'success');
+      render();
+    }
+
+    function reject(id) {
+      if (confirm('هل تريد رفض هذا الطلب؟')) {
+        App.rejectCustomer(id);
+        showAlert('تم رفض الطلب', 'danger');
+        render();
+      }
+    }
+
+    function requestDeactivate(id) {
+      if (confirm('هل تريد تقديم طلب إيقاف هذا العميل؟')) {
+        App.requestCustomerDeactivate(id, session.username);
+        showAlert('تم إرسال طلب الإيقاف للمراجعة', 'success');
+        render();
+      }
+    }
+
+    function deactivateDirect(id) {
+      if (confirm('هل تريد إيقاف هذا العميل؟')) {
+        App.approveCustomerDeactivate(id);
+        showAlert('تم إيقاف العميل', 'success');
+        render();
+      }
+    }
+
+    function approveDeactivate(id) {
+      App.approveCustomerDeactivate(id);
+      showAlert('تم إيقاف العميل بنجاح', 'success');
+      render();
+    }
+
+    function rejectDeactivate(id) {
+      App.rejectCustomerDeactivate(id);
+      showAlert('تم رفض طلب الإيقاف', 'success');
+      render();
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('alertArea');
+      el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+      setTimeout(() => { el.innerHTML = ''; }, 4000);
+    }
+
+    function esc(s) { return App.escHtml(s); }
+  </script>
+</body>
+</html>

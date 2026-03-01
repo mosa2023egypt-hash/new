@@ -73,8 +73,10 @@
 
     function navLinks() {
       const links = [];
-      if (App.isManager(session.role)) links.push({ label:'🏠 الرئيسية', href:'new-home.html' });
+      const home = App.homeUrl(session.role);
+      if (home) links.push({ label:'🏠 الرئيسية', href: home });
       links.push({ label:'🛒 تقرير المشتريات', href:'new-proc-report.html' });
+      links.push({ label:'🏭 قائمة الموردين', href:'new-proc-suppliers-sheet.html' });
       return links;
     }
 
@@ -93,6 +95,8 @@
       const matOpts = mats.map(m => `<option value="${m.name}"${r.material===m.name?' selected':''}>${m.name}</option>`).join('');
       const selMat  = mats.find(m => m.name === r.material);
       const matEn   = selMat ? selMat.nameEn : (r.materialEn || '');
+      const suppliers = App.getActiveSuppliers();
+      const supplierOpts = suppliers.map(s => `<option value="${s.name}"${r.supplier===s.name?' selected':''}>${esc(s.name)}</option>`).join('');
       return `<tr data-id="${r.id}">
         <td>${num}</td>
         <td><input type="date" value="${r.date||''}" onchange="upd(${r.id},'date',this.value)"></td>
@@ -103,7 +107,7 @@
         <td><input type="text" value="${esc(r.concentration||'')}" onchange="upd(${r.id},'concentration',this.value)" placeholder="التركيز"></td>
         <td><input type="text" value="${esc(r.origin||'')}" onchange="upd(${r.id},'origin',this.value)" placeholder="المنشأ"></td>
         <td><input type="number" step="0.01" value="${r.price||''}" onchange="upd(${r.id},'price',this.value)" placeholder="0"></td>
-        <td><input type="text" value="${esc(r.supplier||'')}" onchange="upd(${r.id},'supplier',this.value)" placeholder="المورد"></td>
+        <td><select onchange="upd(${r.id},'supplier',this.value)"><option value="">-- اختر مورد --</option>${supplierOpts}</select></td>
         <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="المسئول"></td>
         <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="التليفون"></td>
         <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="الواتس"></td>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم التشغيل</title>
+  <link rel="stylesheet" href="new-styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container">
+    <h2 class="page-title">⚙️ لوحة تحكم التشغيل</h2>
+
+    <div class="card" style="text-align:center; padding:2rem;">
+      <div style="font-size:3rem; margin-bottom:1rem;">⚙️</div>
+      <h3>مرحباً بك في قسم التشغيل</h3>
+      <p class="text-muted" style="margin-top:.5rem;">سيتم إضافة صفحات التشغيل قريباً.</p>
+    </div>
+  </div>
+
+  <script src="new-app.js"></script>
+  <script>
+    const session = App.requireAuth(['operations', 'admin', 'gm']);
+    if (session) {
+      App.renderNavbar(document.getElementById('navbar'), session, []);
+    }
+  </script>
+</body>
+</html>

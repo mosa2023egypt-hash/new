@@ -56,14 +56,22 @@
       if (role === 'admin') {
         base.push({ icon:'👥', title:'إدارة المستخدمين', desc:'عرض وإدارة المستخدمين', href:'new-admin-users.html' });
       }
-      if (['gm','proc_manager','admin'].includes(role)) {
+      // Sales section – gm and admin only (proc_manager must NOT see sales)
+      if (['gm', 'admin'].includes(role)) {
         base.push(
-          { icon:'📊', title:'تقرير المبيعات',    desc:'عرض تقارير المبيعات',   href:'new-sales-report.html' },
-          { icon:'📋', title:'شيت المبيعات',       desc:'إدخال بيانات المبيعات', href:'new-sales-sheet.html' },
-          { icon:'🛒', title:'تقرير المشتريات',  desc:'عرض تقارير المشتريات', href:'new-proc-report.html' },
-          { icon:'📄', title:'شيت المشتريات',     desc:'إدخال بيانات المشتريات',href:'new-proc-sheet.html' },
-          { icon:'📦', title:'قائمة المواد',       desc:'المواد الموحدة',          href:'new-materials.html' },
-          { icon:'✅', title:'اعتماد المواد',      desc:'قائمة انتظار الاعتماد',   href:'new-materials-approvals.html' },
+          { icon:'📊', title:'تقرير المبيعات',  desc:'عرض تقارير المبيعات',   href:'new-sales-report.html' },
+          { icon:'📋', title:'شيت المبيعات',     desc:'إدخال بيانات المبيعات', href:'new-sales-sheet.html' },
+          { icon:'🧑‍🤝‍🧑', title:'قائمة العملاء', desc:'إدارة بيانات العملاء',   href:'new-sales-customers-sheet.html' },
+        );
+      }
+      // Procurement section – gm, proc_manager and admin
+      if (['gm', 'proc_manager', 'admin'].includes(role)) {
+        base.push(
+          { icon:'🛒', title:'تقرير المشتريات', desc:'عرض تقارير المشتريات',   href:'new-proc-report.html' },
+          { icon:'📄', title:'شيت المشتريات',   desc:'إدخال بيانات المشتريات', href:'new-proc-sheet.html' },
+          { icon:'🏭', title:'قائمة الموردين',  desc:'إدارة بيانات الموردين',   href:'new-proc-suppliers-sheet.html' },
+          { icon:'📦', title:'قائمة المواد',     desc:'المواد الموحدة',          href:'new-materials.html' },
+          { icon:'✅', title:'اعتماد المواد',    desc:'قائمة انتظار الاعتماد',   href:'new-materials-approvals.html' },
         );
       }
       return base;
