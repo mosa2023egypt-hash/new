@@ -376,7 +376,7 @@
         errEl.classList.add('show');
         return;
       }
-      const dup = App.getSuppliers().find(s => s.name === name);
+      const dup = App.getSuppliers().filter(s => s.status === 'active' || s.status === 'pending').find(s => s.name === name);
       if (dup) {
         errEl.textContent = 'هذا المورد موجود بالفعل';
         errEl.classList.add('show');

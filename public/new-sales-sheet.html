@@ -89,8 +89,7 @@
     function custSelect(r) {
       const custs = App.getActiveCustomers();
       const opts = custs.map(c => `<option value="${esc(c.name)}"${r.name === c.name ? ' selected' : ''}>${esc(c.name)}</option>`).join('');
-      const currentVal = r.name ? ` data-current="${esc(r.name)}"` : '';
-      return `<select onchange="upd(${r.id},'name',this.value)"${currentVal}>
+      return `<select onchange="upd(${r.id},'name',this.value)">
         <option value="">-- اختر عميل --</option>
         ${opts}
         ${r.name && !custs.find(c => c.name === r.name) ? `<option value="${esc(r.name)}" selected>${esc(r.name)}</option>` : ''}

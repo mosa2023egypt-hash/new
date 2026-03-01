@@ -365,7 +365,7 @@
         errEl.classList.add('show');
         return;
       }
-      const dup = App.getCustomers().find(c => c.name === name);
+      const dup = App.getCustomers().filter(c => c.status === 'active' || c.status === 'pending').find(c => c.name === name);
       if (dup) {
         errEl.textContent = 'هذا العميل موجود بالفعل';
         errEl.classList.add('show');
