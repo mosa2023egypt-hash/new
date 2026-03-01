@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>شيت العملاء (المبيعات)</title>
+  <title>Sales Customers</title>
   <link rel="stylesheet" href="new-styles.css" />
 </head>
 <body>
@@ -11,8 +11,8 @@
 
   <div class="container">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;">
-      <h2 class="page-title" style="margin:0;">👤 شيت العملاء (المبيعات)</h2>
-      <button class="btn btn-primary" id="btnAdd">➕ إضافة عميل</button>
+      <h2 class="page-title">Sales Customers</h2>
+      <button class="btn btn-primary" id="btnAdd">Add</button>
     </div>
 
     <div class="card">
@@ -20,12 +20,12 @@
         <table>
           <thead>
             <tr>
-              <th>م</th>
-              <th>اسم العميل</th>
-              <th>تليفون</th>
-              <th>الحالة</th>
-              <th>مقدم الطلب</th>
-              <th>إجراء</th>
+              <th></th>
+              <th> </th>
+              <th></th>
+              <th></th>
+              <th> </th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -36,19 +36,19 @@
 
   <div class="modal-backdrop" id="addModal">
     <div class="modal">
-      <h3>➕ إضافة عميل</h3>
+      <h3>  </h3>
       <div class="form-group">
-        <label>اسم العميل *</label>
-        <input type="text" id="cName" class="form-control" placeholder="اسم العميل" />
+        <label>  *</label>
+        <input type="text" id="cName" class="form-control" placeholder=" " />
       </div>
       <div class="form-group">
-        <label>رقم التليفون</label>
+        <label> </label>
         <input type="text" id="cPhone" class="form-control" placeholder="01xxxxxxxxx" />
       </div>
       <div id="addErr" class="login-error"></div>
       <div class="modal-footer">
-        <button class="btn btn-primary" id="btnSubmit">حفظ</button>
-        <button class="btn btn-outline" id="btnCancel">إلغاء</button>
+        <button class="btn btn-primary" id="btnSubmit">Save</button>
+        <button class="btn btn-outline" id="btnCancel">Cancel</button>
       </div>
     </div>
   </div>
@@ -60,10 +60,10 @@
 
     function init() {
       App.renderNavbar(document.getElementById('navbar'), session, [
-        { label:'📊 تقرير المبيعات', href:'new-sales-report.html' },
-        { label:'📋 شيت المبيعات', href:'new-sales-sheet.html' },
+        { label:'  ', href:'new-sales-report.html' },
+        { label:'  ', href:'new-sales-sheet.html' },
         ...(session.role === 'sales_manager' || session.role === 'gm'
-          ? [{ label:'🧑‍💼 مدير المبيعات', href:'new-sales-manager.html' }]
+          ? [{ label:'  ', href:'new-sales-manager.html' }]
           : [])
       ]);
 
@@ -90,7 +90,7 @@
       const tbody = document.getElementById('tbody');
 
       if (!list.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center" style="padding:1rem;">لا يوجد عملاء بعد</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center" style="padding:1rem;">   </td></tr>';
         return;
       }
 
@@ -98,14 +98,14 @@
 
       tbody.innerHTML = list.map((c, i) => {
         const statusLabel =
-          c.status === 'pending' ? '⏳ Pending' :
-          c.status === 'active' ? '✅ Active' :
-          c.status === 'disabled' ? '⛔ Disabled' : c.status;
+          c.status === 'pending' ? ' Pending' :
+          c.status === 'active' ? ' Active' :
+          c.status === 'disabled' ? ' Disabled' : c.status;
 
         let actionHtml = '-';
-        if (c.status === 'pending' && canApprove) actionHtml = `<button class="btn btn-success btn-sm" onclick="approve(${c.id})">✔ اعتماد</button>`;
-        else if (c.status === 'active' && canApprove) actionHtml = `<button class="btn btn-danger btn-sm" onclick="disable(${c.id})">⛔ إيقاف</button>`;
-        else if (c.status === 'active') actionHtml = `<span class="text-muted">مفعّل</span>`;
+        if (c.status === 'pending' && canApprove) actionHtml = `<button class="btn btn-success btn-sm" onclick="approve(${c.id})"> </button>`;
+        else if (c.status === 'active' && canApprove) actionHtml = `<button class="btn btn-danger btn-sm" onclick="disable(${c.id})"> </button>`;
+        else if (c.status === 'active') actionHtml = `<span class="text-muted"></span>`;
 
         return `
           <tr>
@@ -128,7 +128,7 @@
       const phone = document.getElementById('cPhone').value.trim();
       if (!name) {
         const e = document.getElementById('addErr');
-        e.textContent = 'اسم العميل مطلوب';
+        e.textContent = '  ';
         e.classList.add('show');
         return;
       }
@@ -139,5 +139,6 @@
   </script>
 </body>
 </html>
+
 
 

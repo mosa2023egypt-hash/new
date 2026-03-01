@@ -1,27 +1,27 @@
 ﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>لوحة مدير المبيعات</title>
+  <title>Sales Manager</title>
   <link rel="stylesheet" href="new-styles.css" />
 </head>
 <body>
   <nav class="navbar" id="navbar"></nav>
 
   <div class="container">
-    <h2 class="page-title">🧑‍💼 لوحة مدير المبيعات</h2>
+    <h2 class="page-title">Sales Manager</h2>
 
     <div class="card">
-      <h3 class="mb-2" style="color:var(--primary);">👥 موظفو المبيعات</h3>
+      <h3 class="mb-2" style="color:var(--primary);">  </h3>
       <div class="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>م</th>
-              <th>اسم المستخدم</th>
-              <th>الاسم</th>
-              <th>الدور</th>
+              <th></th>
+              <th> </th>
+              <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="salesUsersBody"></tbody>
@@ -30,11 +30,11 @@
     </div>
 
     <div class="card">
-      <h3 class="mb-2" style="color:var(--primary);">🔗 روابط سريعة</h3>
+      <h3 class="mb-2" style="color:var(--primary);">  </h3>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-        <a class="btn btn-primary" href="new-sales-report.html">📊 تقرير المب��عات</a>
-        <a class="btn btn-primary" href="new-sales-sheet.html">📋 شيت المبيعات</a>
-        <a class="btn btn-primary" href="new-sales-customers-sheet.html">👤 شيت العملاء</a>
+        <a class="btn btn-primary" href="new-sales-report.html">  </a>
+        <a class="btn btn-primary" href="new-sales-sheet.html">  </a>
+        <a class="btn btn-primary" href="new-sales-customers-sheet.html">  </a>
       </div>
     </div>
   </div>
@@ -60,10 +60,11 @@
             <td>${App.escHtml(App.roleLabel(u.role))}</td>
           </tr>
         `).join('')
-        : '<tr><td colspan="4" class="text-muted text-center" style="padding:1rem;">لا يوجد موظفين مبيعات</td></tr>';
+        : '<tr><td colspan="4" class="text-muted text-center" style="padding:1rem;">   </td></tr>';
     }
   </script>
 </body>
 </html>
+
 
 

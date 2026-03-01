@@ -1,20 +1,20 @@
 ﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>§„µ­© §„±¦Š³Š©</title>
+  <title>Home</title>
   <link rel="stylesheet" href="new-styles.css">
 </head>
 <body>
   <nav class="navbar" id="navbar"></nav>
 
   <div class="container">
-    <h2 class="page-title">Dashboard</h2>
+    <h2 class="page-title">Home</h2>
 
     <!-- Period filter (managers/GM can change) -->
     <div id="periodBar" class="period-bar card" style="display:none;">
-      <label>[icon]§„ª±© §„²…†Š©:</label>
+      <label> :</label>
       <select id="periodSel" class="form-control" style="width:180px;"></select>
     </div>
 
@@ -54,16 +54,16 @@
     function getCards(role) {
       const base = [];
       if (role === 'admin') {
-        base.push({ icon:'[icon] title:'¥¯§±© §„…³ª®¯…Š†', desc:'¹±¶ ˆ¥¯§±© §„…³ª®¯…Š†', href:'new-admin-users.html' });
+        base.push({ icon:' title:' ', desc:'  ', href:'new-admin-users.html' });
       }
       if (['gm','proc_manager','admin'].includes(role)) {
         base.push(
-          { icon:'[icon] title:'ª‚±Š± §„…¨Š¹§ª',    desc:'¹±¶ ª‚§±Š± §„…¨Š¹§ª',   href:'new-sales-report.html' },
-          { icon:'[icon] title:'´Šª §„…¨Š¹§ª',       desc:'¥¯®§„ ¨Š§†§ª §„…¨Š¹§ª', href:'new-sales-sheet.html' },
-          { icon:'[icon] title:'ª‚±Š± §„…´ª±Š§ª',  desc:'¹±¶ ª‚§±Š± §„…´ª±Š§ª', href:'new-proc-report.html' },
-          { icon:'[icon] title:'´Šª §„…´ª±Š§ª',     desc:'¥¯®§„ ¨Š§†§ª §„…´ª±Š§ª',href:'new-proc-sheet.html' },
-          { icon:'[icon] title:'‚§¦…© §„…ˆ§¯',       desc:'§„…ˆ§¯ §„…ˆ­¯©',          href:'new-materials.html' },
-          { icon:'âœ…', title:'§¹ª…§¯ §„…ˆ§¯',      desc:'‚§¦…© §†ª¸§± §„§¹ª…§¯',   href:'new-materials-approvals.html' },
+          { icon:' title:' ',    desc:'  ',   href:'new-sales-report.html' },
+          { icon:' title:' ',       desc:'  ', href:'new-sales-sheet.html' },
+          { icon:' title:' ',  desc:'  ', href:'new-proc-report.html' },
+          { icon:' title:' ',     desc:'  ',href:'new-proc-sheet.html' },
+          { icon:' title:' ',       desc:' ',          href:'new-materials.html' },
+          { icon:'', title:' ',      desc:'  ',   href:'new-materials-approvals.html' },
         );
       }
       return base;
@@ -71,6 +71,7 @@
   </script>
 </body>
 </html>
+
 
 
 

@@ -1,27 +1,27 @@
 ﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>¥¯§±© §„…³ª®¯…Š†</title>
+  <title>Admin Users</title>
   <link rel="stylesheet" href="new-styles.css">
 </head>
 <body>
   <nav class="navbar" id="navbar"></nav>
 
   <div class="container">
-    <h2 class="page-title">Dashboard</h2>
+    <h2 class="page-title">Admin Users</h2>
 
     <div class="card">
       <div class="table-wrapper">
         <table id="usersTable">
           <thead>
             <tr>
-              <th>…</th>
-              <th>§³… §„…³ª®¯… / ±‚… §„…ˆ¨§Š„</th>
-              <th>§„§³…</th>
-              <th>§„¯ˆ±</th>
-              <th>ƒ„…© §„…±ˆ±</th>
+              <th></th>
+              <th>  /  </th>
+              <th></th>
+              <th></th>
+              <th> </th>
             </tr>
           </thead>
           <tbody id="usersTbody"></tbody>
@@ -37,7 +37,7 @@
 
     function init() {
       App.renderNavbar(document.getElementById('navbar'), session, [
-        { label: '[icon]§„±¦Š³Š©', href: 'new-home.html' },
+        { label: '', href: 'new-home.html' },
       ]);
 
       const tbody = document.getElementById('usersTbody');
@@ -48,13 +48,14 @@
           <td>${App.escHtml(uname)}</td>
           <td>${App.escHtml(u.name)}</td>
           <td>${App.escHtml(App.roleLabel(u.role))}</td>
-          <td>â€¢â€¢â€¢â€¢</td>
+          <td>****</td>
         </tr>
       `).join('');
     }
   </script>
 </body>
 </html>
+
 
 
 

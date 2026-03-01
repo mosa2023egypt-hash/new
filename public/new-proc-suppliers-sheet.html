@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>شيت الموردين (المشتريات)</title>
+  <title>Procurement Suppliers</title>
   <link rel="stylesheet" href="new-styles.css" />
 </head>
 <body>
@@ -11,8 +11,8 @@
 
   <div class="container">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;">
-      <h2 class="page-title" style="margin:0;">🏭 شيت الموردين (المشتريات)</h2>
-      <button class="btn btn-primary" id="btnAdd">➕ إضافة مورد</button>
+      <h2 class="page-title">Procurement Suppliers</h2>
+      <button class="btn btn-primary" id="btnAdd">Add</button>
     </div>
 
     <div class="card">
@@ -20,12 +20,12 @@
         <table>
           <thead>
             <tr>
-              <th>م</th>
-              <th>اسم المورد</th>
-              <th>تليفون</th>
-              <th>الحالة</th>
-              <th>مقدم الطلب</th>
-              <th>إجراء</th>
+              <th></th>
+              <th> </th>
+              <th></th>
+              <th></th>
+              <th> </th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -36,19 +36,19 @@
 
   <div class="modal-backdrop" id="addModal">
     <div class="modal">
-      <h3>➕ إضافة مورد</h3>
+      <h3>  </h3>
       <div class="form-group">
-        <label>اسم المورد *</label>
-        <input type="text" id="sName" class="form-control" placeholder="اسم المورد" />
+        <label>  *</label>
+        <input type="text" id="sName" class="form-control" placeholder=" " />
       </div>
       <div class="form-group">
-        <label>رقم التليفون</label>
+        <label> </label>
         <input type="text" id="sPhone" class="form-control" placeholder="01xxxxxxxxx" />
       </div>
       <div id="addErr" class="login-error"></div>
       <div class="modal-footer">
-        <button class="btn btn-primary" id="btnSubmit">حفظ</button>
-        <button class="btn btn-outline" id="btnCancel">إلغاء</button>
+        <button class="btn btn-primary" id="btnSubmit">Save</button>
+        <button class="btn btn-outline" id="btnCancel">Cancel</button>
       </div>
     </div>
   </div>
@@ -60,8 +60,8 @@
 
     function init() {
       App.renderNavbar(document.getElementById('navbar'), session, [
-        { label:'🛒 تقرير المشتريات', href:'new-proc-report.html' },
-        { label:'📄 شيت المشتريات', href:'new-proc-sheet.html' }
+        { label:'  ', href:'new-proc-report.html' },
+        { label:'  ', href:'new-proc-sheet.html' }
       ]);
 
       document.getElementById('btnAdd').addEventListener('click', () => openModal(true));
@@ -87,7 +87,7 @@
       const tbody = document.getElementById('tbody');
 
       if (!list.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center" style="padding:1rem;">لا يوجد موردين بعد</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center" style="padding:1rem;">   </td></tr>';
         return;
       }
 
@@ -95,14 +95,14 @@
 
       tbody.innerHTML = list.map((s, i) => {
         const statusLabel =
-          s.status === 'pending' ? '⏳ Pending' :
-          s.status === 'active' ? '✅ Active' :
-          s.status === 'disabled' ? '⛔ Disabled' : s.status;
+          s.status === 'pending' ? ' Pending' :
+          s.status === 'active' ? ' Active' :
+          s.status === 'disabled' ? ' Disabled' : s.status;
 
         let actionHtml = '-';
-        if (s.status === 'pending' && canApprove) actionHtml = `<button class="btn btn-success btn-sm" onclick="approve(${s.id})">✔ اعتماد</button>`;
-        else if (s.status === 'active' && canApprove) actionHtml = `<button class="btn btn-danger btn-sm" onclick="disable(${s.id})">⛔ إيقاف</button>`;
-        else if (s.status === 'active') actionHtml = `<span class="text-muted">مفعّل</span>`;
+        if (s.status === 'pending' && canApprove) actionHtml = `<button class="btn btn-success btn-sm" onclick="approve(${s.id})"> </button>`;
+        else if (s.status === 'active' && canApprove) actionHtml = `<button class="btn btn-danger btn-sm" onclick="disable(${s.id})"> </button>`;
+        else if (s.status === 'active') actionHtml = `<span class="text-muted"></span>`;
 
         return `
           <tr>
@@ -125,7 +125,7 @@
       const phone = document.getElementById('sPhone').value.trim();
       if (!name) {
         const e = document.getElementById('addErr');
-        e.textContent = 'اسم المورد مطلوب';
+        e.textContent = '  ';
         e.classList.add('show');
         return;
       }
@@ -136,5 +136,6 @@
   </script>
 </body>
 </html>
+
 
 
