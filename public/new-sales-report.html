@@ -56,7 +56,7 @@
     const CONTACT_METHODS = ['واتساب','تليفون','إيميل','زيارة','أخرى'];
     const CLIENT_RESPONSES = ['إيجابي','سلبي','مؤجل','لا رد','عرض سعر مطلوب'];
 
-    const session = App.requireAuth(['sales','admin','proc_manager','gm']);
+    const session = App.requireAuth(['sales','sales_manager','admin','gm']);
     if (session) init();
 
     let period = App.currentPeriod();
@@ -77,8 +77,10 @@
 
     function navLinks() {
       const links = [];
-      if (App.isManager(session.role)) links.push({ label:'🏠 الرئيسية', href:'new-home.html' });
+      const home = App.homeUrl(session.role);
+      if (home) links.push({ label:'🏠 الرئيسية', href: home });
       links.push({ label:'📋 شيت المبيعات', href:'new-sales-sheet.html' });
+      links.push({ label:'🧑‍🤝‍🧑 قائمة العملاء', href:'new-sales-customers-sheet.html' });
       return links;
     }
 
@@ -94,10 +96,12 @@
 
     function rowHtml(r, num) {
       const mats = App.getApprovedMaterials().map(m => `<option${r.material===m.name?' selected':''}>${m.name}</option>`).join('');
+      const customers = App.getActiveCustomers();
+      const clientOpts = customers.map(c => `<option value="${c.name}"${r.client===c.name?' selected':''}>${esc(c.name)}</option>`).join('');
       return `<tr data-id="${r.id}">
         <td>${num}</td>
         <td><input type="date" value="${r.date||''}" onchange="upd(${r.id},'date',this.value)"></td>
-        <td><input type="text" value="${esc(r.client||'')}" onchange="upd(${r.id},'client',this.value)" placeholder="العميل"></td>
+        <td><select onchange="upd(${r.id},'client',this.value)"><option value="">-- اختر عميل --</option>${clientOpts}</select></td>
         <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="المسئول"></td>
         <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="التليفون"></td>
         <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="الواتس"></td>

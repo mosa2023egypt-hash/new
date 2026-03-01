@@ -7,25 +7,35 @@
 
   /* ── Demo Users ─────────────────────────────────────────── */
   const DEMO_USERS = {
-    '1111': { name: 'Admin',              role: 'admin',         password: '1234' },
-    '2222': { name: 'Sales1',             role: 'sales',         password: '1234' },
-    '3333': { name: 'Sales2',             role: 'sales',         password: '1234' },
-    '4444': { name: 'Procurement1',       role: 'procurement',   password: '1234' },
-    '5555': { name: 'Procurement2',       role: 'procurement',   password: '1234' },
-    '6666': { name: 'ProcurementManager', role: 'proc_manager',  password: '1234' },
-    '7777': { name: 'GM1',               role: 'gm',            password: '1234' },
-    '8888': { name: 'GM2',               role: 'gm',            password: '1234' },
-    '9999': { name: 'GM3',               role: 'gm',            password: '1234' },
+    '1111': { name: 'Admin',          role: 'admin',         password: '1234' },
+    '2222': { name: 'مشتريات1',       role: 'procurement',   password: '1234' },
+    '3333': { name: 'مشتريات2',       role: 'procurement',   password: '1234' },
+    '4444': { name: 'مدير مشتريات',  role: 'proc_manager',  password: '1234' },
+    '5555': { name: 'مبيعات1',        role: 'sales',         password: '1234' },
+    '6666': { name: 'مدير مبيعات',   role: 'sales_manager', password: '1234' },
+    '7777': { name: 'مدير عام',      role: 'gm',            password: '1234' },
+    '8888': { name: 'تشغيل',         role: 'operations',    password: '1234' },
   };
 
   /* ── Role helpers ────────────────────────────────────────── */
-  const MANAGER_ROLES = ['gm', 'proc_manager', 'admin'];
+  const MANAGER_ROLES = ['gm', 'proc_manager', 'sales_manager', 'admin'];
   const GM_ROLES      = ['gm'];
 
   function isManager(role) { return MANAGER_ROLES.includes(role); }
   function isGM(role)      { return GM_ROLES.includes(role); }
   function canApprove(role){ return ['gm', 'proc_manager', 'admin'].includes(role); }
   function canArchive(role){ return ['gm', 'proc_manager', 'admin'].includes(role); }
+
+  function homeUrl(role) {
+    const map = {
+      admin:         'new-admin-users.html',
+      proc_manager:  'new-home.html',
+      gm:            'new-home.html',
+      sales_manager: 'new-sales-manager.html',
+      operations:    'new-operations.html',
+    };
+    return map[role] || null;
+  }
 
   /* ── Session (sessionStorage) ────────────────────────────── */
   const SESSION_KEY = 'new_app_session';
@@ -64,11 +74,13 @@
   /* ── Role-based redirect after login ─────────────────────── */
   function redirectByRole(role) {
     const map = {
-      admin:        'new-admin-users.html',
-      sales:        'new-sales-report.html',
-      procurement:  'new-proc-report.html',
-      proc_manager: 'new-home.html',
-      gm:           'new-home.html',
+      admin:         'new-admin-users.html',
+      sales:         'new-sales-report.html',
+      sales_manager: 'new-sales-manager.html',
+      procurement:   'new-proc-report.html',
+      proc_manager:  'new-home.html',
+      gm:            'new-home.html',
+      operations:    'new-operations.html',
     };
     window.location.href = map[role] || 'new-login.html';
   }
@@ -182,6 +194,76 @@
     return getMaterials().filter(m => m.status === 'approved');
   }
 
+  /* ── Customers storage ────────────────────────────────────── */
+  const CUSTOMERS_KEY = 'new_customers';
+
+  function getCustomers() { return lsGet(CUSTOMERS_KEY, []); }
+  function saveCustomers(list) { lsSet(CUSTOMERS_KEY, list); }
+
+  function addCustomer(data, requestedBy) {
+    const list = getCustomers();
+    const c = Object.assign({}, data, { id: generateId(), status: 'pending', requestedBy, createdAt: todayLocal() });
+    list.push(c);
+    saveCustomers(list);
+    return c;
+  }
+
+  function updateCustomer(id, updates) {
+    const list = getCustomers();
+    const idx = list.findIndex(c => c.id === id);
+    if (idx !== -1) { Object.assign(list[idx], updates); saveCustomers(list); }
+  }
+
+  function approveCustomer(id) { updateCustomer(id, { status: 'active' }); }
+  function rejectCustomer(id)  { updateCustomer(id, { status: 'rejected' }); }
+
+  function requestCustomerDeactivate(id, requestedBy) {
+    updateCustomer(id, { deactivateRequest: true, deactivateRequestedBy: requestedBy });
+  }
+  function approveCustomerDeactivate(id) {
+    updateCustomer(id, { status: 'inactive', deactivateRequest: false });
+  }
+  function rejectCustomerDeactivate(id) {
+    updateCustomer(id, { deactivateRequest: false });
+  }
+
+  function getActiveCustomers() { return getCustomers().filter(c => c.status === 'active'); }
+
+  /* ── Suppliers storage ────────────────────────────────────── */
+  const SUPPLIERS_KEY = 'new_suppliers';
+
+  function getSuppliers() { return lsGet(SUPPLIERS_KEY, []); }
+  function saveSuppliers(list) { lsSet(SUPPLIERS_KEY, list); }
+
+  function addSupplier(data, requestedBy) {
+    const list = getSuppliers();
+    const s = Object.assign({}, data, { id: generateId(), status: 'pending', requestedBy, createdAt: todayLocal() });
+    list.push(s);
+    saveSuppliers(list);
+    return s;
+  }
+
+  function updateSupplier(id, updates) {
+    const list = getSuppliers();
+    const idx = list.findIndex(s => s.id === id);
+    if (idx !== -1) { Object.assign(list[idx], updates); saveSuppliers(list); }
+  }
+
+  function approveSupplier(id) { updateSupplier(id, { status: 'active' }); }
+  function rejectSupplier(id)  { updateSupplier(id, { status: 'rejected' }); }
+
+  function requestSupplierDeactivate(id, requestedBy) {
+    updateSupplier(id, { deactivateRequest: true, deactivateRequestedBy: requestedBy });
+  }
+  function approveSupplierDeactivate(id) {
+    updateSupplier(id, { status: 'inactive', deactivateRequest: false });
+  }
+  function rejectSupplierDeactivate(id) {
+    updateSupplier(id, { deactivateRequest: false });
+  }
+
+  function getActiveSuppliers() { return getSuppliers().filter(s => s.status === 'active'); }
+
   /* ── Navbar helper ────────────────────────────────────────── */
   function renderNavbar(container, session, extraLinks) {
     const role = session.role;
@@ -199,8 +281,9 @@
   }
 
   function roleLabel(role) {
-    const m = { admin:'مدير النظام', sales:'مبيعات', procurement:'مشتريات',
-                 proc_manager:'مدير مشتريات', gm:'مدير عام' };
+    const m = { admin:'مدير النظام', sales:'مبيعات', sales_manager:'مدير مبيعات',
+                 procurement:'مشتريات', proc_manager:'مدير مشتريات',
+                 gm:'مدير عام', operations:'تشغيل' };
     return m[role] || role;
   }
 
@@ -232,11 +315,17 @@
 
   /* ── Export public API ────────────────────────────────────── */
   window.App = {
-    login, logout, getSession, requireAuth, redirectByRole,
+    login, logout, getSession, requireAuth, redirectByRole, homeUrl,
     fetchServerDate, todayLocal, currentPeriod,
     getRows, saveRows, addRow, updateRow, deleteRow,
     getMaterials, saveMaterials, addMaterialRequest,
     approveMaterial, rejectMaterial, getApprovedMaterials,
+    getCustomers, saveCustomers, addCustomer, updateCustomer,
+    approveCustomer, rejectCustomer, requestCustomerDeactivate,
+    approveCustomerDeactivate, rejectCustomerDeactivate, getActiveCustomers,
+    getSuppliers, saveSuppliers, addSupplier, updateSupplier,
+    approveSupplier, rejectSupplier, requestSupplierDeactivate,
+    approveSupplierDeactivate, rejectSupplierDeactivate, getActiveSuppliers,
     renderNavbar, roleLabel, buildPeriodOptions,
     isManager, isGM, canApprove, canArchive,
     escHtml,

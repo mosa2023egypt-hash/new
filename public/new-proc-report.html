@@ -76,8 +76,10 @@
 
     function navLinks() {
       const links = [];
-      if (App.isManager(session.role)) links.push({ label:'🏠 الرئيسية', href:'new-home.html' });
+      const home = App.homeUrl(session.role);
+      if (home) links.push({ label:'🏠 الرئيسية', href: home });
       links.push({ label:'📄 شيت المشتريات', href:'new-proc-sheet.html' });
+      links.push({ label:'🏭 قائمة الموردين', href:'new-proc-suppliers-sheet.html' });
       return links;
     }
 
@@ -102,12 +104,14 @@
 
     function rowHtml(r, num) {
       const mats = App.getApprovedMaterials().map(m => `<option${r.material===m.name?' selected':''}>${m.name}</option>`).join('');
+      const suppliers = App.getActiveSuppliers();
+      const supplierOpts = suppliers.map(s => `<option value="${s.name}"${r.supplier===s.name?' selected':''}>${esc(s.name)}</option>`).join('');
       const dur  = calcDuration(r.timeAsk, r.timeAnswer);
       return `<tr data-id="${r.id}">
         <td>${num}</td>
         <td><input type="date" value="${r.date||''}" onchange="upd(${r.id},'date',this.value)"></td>
         <td><select onchange="upd(${r.id},'material',this.value)"><option value="">-- اختر --</option>${mats}</select></td>
-        <td><input type="text" value="${esc(r.supplier||'')}" onchange="upd(${r.id},'supplier',this.value)" placeholder="المورد"></td>
+        <td><select onchange="upd(${r.id},'supplier',this.value)"><option value="">-- اختر مورد --</option>${supplierOpts}</select></td>
         <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="المسئول"></td>
         <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="التليفون"></td>
         <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="الواتس"></td>
