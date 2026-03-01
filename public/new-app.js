@@ -182,6 +182,162 @@
     return getMaterials().filter(m => m.status === 'approved');
   }
 
+  /* ── Customers storage ────────────────────────────────────── */
+  const CUST_KEY = 'new_customers';
+
+  function getCustomers() { return lsGet(CUST_KEY, []); }
+  function saveCustomers(list) { lsSet(CUST_KEY, list); }
+
+  function addCustomerRequest(data, requestedBy, requestedByName) {
+    const list = getCustomers();
+    const c = Object.assign(
+      { id: generateId(), status: 'pending', requestedBy, requestedByName, createdAt: todayLocal(), auditLog: [] },
+      data
+    );
+    list.push(c);
+    saveCustomers(list);
+    return c;
+  }
+
+  function approveCustomer(id, byUsername, byName) {
+    const list = getCustomers();
+    const c = list.find(x => x.id === id);
+    if (c) {
+      c.status = 'active';
+      c.auditLog.push({ action: 'approved', by: byUsername, byName, at: todayLocal() });
+    }
+    saveCustomers(list);
+  }
+
+  function rejectCustomer(id, byUsername, byName, reason) {
+    const list = getCustomers();
+    const c = list.find(x => x.id === id);
+    if (c) {
+      c.status = 'rejected';
+      c.rejectionReason = reason || '';
+      c.auditLog.push({ action: 'rejected', by: byUsername, byName, at: todayLocal() });
+    }
+    saveCustomers(list);
+  }
+
+  function updateCustomer(id, updates, byUsername, byName) {
+    const list = getCustomers();
+    const c = list.find(x => x.id === id);
+    if (c) {
+      Object.assign(c, updates);
+      c.auditLog.push({ action: 'updated', by: byUsername, byName, at: todayLocal() });
+      saveCustomers(list);
+    }
+  }
+
+  function getActiveCustomers() { return getCustomers().filter(c => c.status === 'active'); }
+
+  function canApproveCustomers(role) { return ['gm', 'admin'].includes(role); }
+
+  /* ── Suppliers storage ────────────────────────────────────── */
+  const SUPP_KEY = 'new_suppliers';
+
+  function getSuppliers() { return lsGet(SUPP_KEY, []); }
+  function saveSuppliers(list) { lsSet(SUPP_KEY, list); }
+
+  function addSupplierRequest(data, requestedBy, requestedByName) {
+    const list = getSuppliers();
+    const s = Object.assign(
+      { id: generateId(), status: 'pending', requestedBy, requestedByName, createdAt: todayLocal(), auditLog: [] },
+      data
+    );
+    list.push(s);
+    saveSuppliers(list);
+    return s;
+  }
+
+  function approveSupplier(id, byUsername, byName) {
+    const list = getSuppliers();
+    const s = list.find(x => x.id === id);
+    if (s) {
+      s.status = 'active';
+      s.auditLog.push({ action: 'approved', by: byUsername, byName, at: todayLocal() });
+    }
+    saveSuppliers(list);
+  }
+
+  function rejectSupplier(id, byUsername, byName, reason) {
+    const list = getSuppliers();
+    const s = list.find(x => x.id === id);
+    if (s) {
+      s.status = 'rejected';
+      s.rejectionReason = reason || '';
+      s.auditLog.push({ action: 'rejected', by: byUsername, byName, at: todayLocal() });
+    }
+    saveSuppliers(list);
+  }
+
+  function updateSupplier(id, updates, byUsername, byName) {
+    const list = getSuppliers();
+    const s = list.find(x => x.id === id);
+    if (s) {
+      Object.assign(s, updates);
+      s.auditLog.push({ action: 'updated', by: byUsername, byName, at: todayLocal() });
+      saveSuppliers(list);
+    }
+  }
+
+  function getActiveSuppliers() { return getSuppliers().filter(s => s.status === 'active'); }
+
+  function canApproveSuppliers(role) { return ['gm', 'proc_manager', 'admin'].includes(role); }
+
+  /* ── Deactivation Requests ────────────────────────────────── */
+  const DEACT_KEY = 'new_deact_requests';
+
+  function getDeactivationRequests() { return lsGet(DEACT_KEY, []); }
+  function saveDeactivationRequests(list) { lsSet(DEACT_KEY, list); }
+
+  function addDeactivationRequest(entityType, entityId, entityName, reason, requestedBy, requestedByName) {
+    const list = getDeactivationRequests();
+    const req = {
+      id: generateId(),
+      entityType, entityId, entityName, reason,
+      requestedBy, requestedByName,
+      status: 'pending',
+      createdAt: todayLocal(),
+    };
+    list.push(req);
+    saveDeactivationRequests(list);
+    return req;
+  }
+
+  function approveDeactivation(reqId, byUsername, byName) {
+    const list = getDeactivationRequests();
+    const req = list.find(x => x.id === reqId);
+    if (!req) return;
+    req.status = 'approved';
+    saveDeactivationRequests(list);
+    if (req.entityType === 'customer') {
+      const customers = getCustomers();
+      const c = customers.find(x => x.id === req.entityId);
+      if (c) {
+        c.status = 'inactive';
+        c.auditLog.push({ action: 'deactivated', by: byUsername, byName, at: todayLocal() });
+        saveCustomers(customers);
+      }
+    } else {
+      const suppliers = getSuppliers();
+      const s = suppliers.find(x => x.id === req.entityId);
+      if (s) {
+        s.status = 'inactive';
+        s.auditLog.push({ action: 'deactivated', by: byUsername, byName, at: todayLocal() });
+        saveSuppliers(suppliers);
+      }
+    }
+  }
+
+  function rejectDeactivation(reqId) {
+    const list = getDeactivationRequests();
+    const req = list.find(x => x.id === reqId);
+    if (req) req.status = 'rejected';
+    saveDeactivationRequests(list);
+  }
+
   /* ── Navbar helper ────────────────────────────────────────── */
   function renderNavbar(container, session, extraLinks) {
     const role = session.role;
@@ -237,6 +393,14 @@
     getRows, saveRows, addRow, updateRow, deleteRow,
     getMaterials, saveMaterials, addMaterialRequest,
     approveMaterial, rejectMaterial, getApprovedMaterials,
+    getCustomers, saveCustomers, addCustomerRequest,
+    approveCustomer, rejectCustomer, updateCustomer, getActiveCustomers,
+    canApproveCustomers,
+    getSuppliers, saveSuppliers, addSupplierRequest,
+    approveSupplier, rejectSupplier, updateSupplier, getActiveSuppliers,
+    canApproveSuppliers,
+    getDeactivationRequests, saveDeactivationRequests,
+    addDeactivationRequest, approveDeactivation, rejectDeactivation,
     renderNavbar, roleLabel, buildPeriodOptions,
     isManager, isGM, canApprove, canArchive,
     escHtml,

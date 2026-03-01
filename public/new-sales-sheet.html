@@ -82,7 +82,19 @@
       const links = [];
       if (App.isManager(session.role)) links.push({ label:'🏠 الرئيسية', href:'new-home.html' });
       links.push({ label:'📊 تقرير المبيعات', href:'new-sales-report.html' });
+      links.push({ label:'👥 العملاء', href:'new-customers.html' });
       return links;
+    }
+
+    function custSelect(r) {
+      const custs = App.getActiveCustomers();
+      const opts = custs.map(c => `<option value="${esc(c.name)}"${r.name === c.name ? ' selected' : ''}>${esc(c.name)}</option>`).join('');
+      const currentVal = r.name ? ` data-current="${esc(r.name)}"` : '';
+      return `<select onchange="upd(${r.id},'name',this.value)"${currentVal}>
+        <option value="">-- اختر عميل --</option>
+        ${opts}
+        ${r.name && !custs.find(c => c.name === r.name) ? `<option value="${esc(r.name)}" selected>${esc(r.name)}</option>` : ''}
+      </select>`;
     }
 
     function render() {
@@ -103,7 +115,7 @@
       return `<tr data-id="${r.id}">
         <td>${num}</td>
         <td><input type="date" value="${r.date||''}" onchange="upd(${r.id},'date',this.value)"></td>
-        <td><input type="text" value="${esc(r.name||'')}" onchange="upd(${r.id},'name',this.value)" placeholder="الاسم"></td>
+        <td>${custSelect(r)}</td>
         <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="المسئول"></td>
         <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="التليفون"></td>
         <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="واتساب"></td>
