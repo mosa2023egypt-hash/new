@@ -1,27 +1,27 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>إدارة المستخدمين</title>
+  <title>Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†</title>
   <link rel="stylesheet" href="new-styles.css">
 </head>
 <body>
   <nav class="navbar" id="navbar"></nav>
 
   <div class="container">
-    <h2 class="page-title">👥 إدارة المستخدمين</h2>
+    <h2 class="page-title">ðŸ‘¥ Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†</h2>
 
     <div class="card">
       <div class="table-wrapper">
         <table id="usersTable">
           <thead>
             <tr>
-              <th>م</th>
-              <th>اسم المستخدم / رقم الموبايل</th>
-              <th>الاسم</th>
-              <th>الدور</th>
-              <th>كلمة المرور</th>
+              <th>Ù…</th>
+              <th>Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… / Ø±Ù‚Ù… Ø§Ù„Ù…ÙˆØ¨Ø§ÙŠÙ„</th>
+              <th>Ø§Ù„Ø§Ø³Ù…</th>
+              <th>Ø§Ù„Ø¯ÙˆØ±</th>
+              <th>ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±</th>
             </tr>
           </thead>
           <tbody id="usersTbody"></tbody>
@@ -37,7 +37,7 @@
 
     function init() {
       App.renderNavbar(document.getElementById('navbar'), session, [
-        { label: '🏠 الرئيسية', href: 'new-home.html' },
+        { label: 'ðŸ  Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©', href: 'new-home.html' },
       ]);
 
       const tbody = document.getElementById('usersTbody');
@@ -48,10 +48,12 @@
           <td>${App.escHtml(uname)}</td>
           <td>${App.escHtml(u.name)}</td>
           <td>${App.escHtml(App.roleLabel(u.role))}</td>
-          <td>••••</td>
+          <td>â€¢â€¢â€¢â€¢</td>
         </tr>
       `).join('');
     }
   </script>
 </body>
 </html>
+
+
