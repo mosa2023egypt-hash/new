@@ -14,6 +14,14 @@
         <p>يرجى تسجيل الدخول للمتابعة</p>
       </div>
 
+      <div id="alreadyLogged" class="card" style="display:none;margin-bottom:1rem;">
+        <div style="font-weight:700;margin-bottom:.5rem;">أنت مسجل دخول بالفعل</div>
+        <div class="d-flex gap-1" style="display:flex;gap:.5rem;">
+          <button class="btn btn-primary" id="btnContinue">متابعة</button>
+          <button class="btn btn-outline" id="btnLogout">تسجيل خروج</button>
+        </div>
+      </div>
+
       <div id="loginError" class="login-error">
         رقم الموبايل أو كلمة المرور غير صحيحة
       </div>
@@ -21,26 +29,12 @@
       <form id="loginForm">
         <div class="form-group">
           <label for="username">رقم الموبايل / اسم المستخدم</label>
-          <input
-            id="username"
-            type="text"
-            class="form-control"
-            placeholder="أدخل رقم الموبايل"
-            autocomplete="username"
-            required
-          >
+          <input id="username" type="text" class="form-control" placeholder="أدخل رقم الموبايل" autocomplete="username" required>
         </div>
 
         <div class="form-group">
           <label for="password">كلمة المرور</label>
-          <input
-            id="password"
-            type="password"
-            class="form-control"
-            placeholder="أدخل كلمة المرور"
-            autocomplete="current-password"
-            required
-          >
+          <input id="password" type="password" class="form-control" placeholder="أدخل كلمة المرور" autocomplete="current-password" required>
         </div>
 
         <button type="submit" class="btn btn-primary w-100">دخول</button>
@@ -54,10 +48,13 @@
 
   <script src="new-app.js"></script>
   <script>
-    // If already logged in, redirect
     (function () {
       const s = App.getSession();
-      if (s) App.redirectByRole(s.role);
+      if (!s) return;
+
+      document.getElementById('alreadyLogged').style.display = '';
+      document.getElementById('btnContinue').addEventListener('click', () => App.redirectByRole(s.role));
+      document.getElementById('btnLogout').addEventListener('click', () => App.logout());
     }());
 
     document.getElementById('loginForm').addEventListener('submit', function (e) {
@@ -65,20 +62,12 @@
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
       const session  = App.login(username, password);
-      if (session) {
-        App.redirectByRole(session.role);
-      } else {
-        const err = document.getElementById('loginError');
-        err.classList.add('show');
-      }
+      if (session) App.redirectByRole(session.role);
+      else document.getElementById('loginError').classList.add('show');
     });
 
-    // Hide error on input
-    document.getElementById('username').addEventListener('input', hideErr);
-    document.getElementById('password').addEventListener('input', hideErr);
-    function hideErr() {
-      document.getElementById('loginError').classList.remove('show');
-    }
+    document.getElementById('username').addEventListener('input', () => document.getElementById('loginError').classList.remove('show'));
+    document.getElementById('password').addEventListener('input', () => document.getElementById('loginError').classList.remove('show'));
   </script>
 </body>
 </html>
