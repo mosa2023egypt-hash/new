@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ø´ÙŠØª Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª</title>
+  <title>´Šª §„…´ª±Š§ª</title>
   <link rel="stylesheet" href="new-styles.css">
 </head>
 <body>
@@ -11,12 +11,12 @@
 
   <div class="container">
     <div class="d-flex justify-between align-center flex-wrap mb-2">
-      <h2 class="page-title">ðŸ“„ Ø´ÙŠØª Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª</h2>
-      <button class="btn btn-primary" id="btnAdd">âž• Ø¥Ø¶Ø§ÙØ© ØµÙ</button>
+      <h2 class="page-title">Dashboard</h2>
+      <button class="btn btn-primary" id="btnAdd">âž• ¥¶§© µ</button>
     </div>
 
     <div class="period-bar card">
-      <label>ðŸ“… Ø§Ù„ÙØªØ±Ø©:</label>
+      <label>[icon]§„ª±©:</label>
       <select id="periodSel" class="form-control" style="width:180px;"></select>
     </div>
 
@@ -25,22 +25,22 @@
         <table>
           <thead>
             <tr>
-              <th>Ù…</th>
-              <th>Ø§Ù„ØªØ§Ø±ÙŠØ®</th>
-              <th>Ø§Ù„Ù…Ø§Ø¯Ø©</th>
-              <th>Ø§Ù„Ø§Ø³Ù… Ø¨Ø§Ù„Ø§Ù†Ø¬Ù„ÙŠØ²ÙŠ</th>
-              <th>Ù†ÙˆØ¹ Ø§Ù„Ù…Ø§Ø¯Ø©</th>
-              <th>Ø§Ù„Ø§Ø³Ù… Ø§Ù„ØªØ¬Ø§Ø±ÙŠ</th>
-              <th>Ø§Ù„ØªØ±ÙƒÙŠØ²</th>
-              <th>Ø§Ù„Ù…Ù†Ø´Ø£</th>
-              <th>Ø§Ù„Ø³Ø¹Ø±</th>
-              <th>Ø§Ù„Ù…ÙˆØ±Ø¯</th>
-              <th>Ø§Ù„Ù…Ø³Ø¦ÙˆÙ„</th>
-              <th>Ø§Ù„ØªÙ„ÙŠÙÙˆÙ†</th>
-              <th>Ø§Ù„ÙˆØ§ØªØ³</th>
-              <th>Ø§Ù„Ù…Ø®Ø²Ù†</th>
-              <th>Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª</th>
-              <th>Ø­Ø°Ù</th>
+              <th>…</th>
+              <th>§„ª§±Š®</th>
+              <th>§„…§¯©</th>
+              <th>§„§³… ¨§„§†¬„Š²Š</th>
+              <th>†ˆ¹ §„…§¯©</th>
+              <th>§„§³… §„ª¬§±Š</th>
+              <th>§„ª±ƒŠ²</th>
+              <th>§„…†´£</th>
+              <th>§„³¹±</th>
+              <th>§„…ˆ±¯</th>
+              <th>§„…³¦ˆ„</th>
+              <th>§„ª„Šˆ†</th>
+              <th>§„ˆ§ª³</th>
+              <th>§„…®²†</th>
+              <th>§„…„§­¸§ª</th>
+              <th>­°</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -73,8 +73,8 @@
 
     function navLinks() {
       const links = [];
-      if (App.isManager(session.role)) links.push({ label:'ðŸ  Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©', href:'new-home.html' });
-      links.push({ label:'ðŸ›’ ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª', href:'new-proc-report.html' });
+      if (App.isManager(session.role)) links.push({ label:'Home', href:'new-home.html' });
+      links.push({ label:'Procurement Report', href:'new-proc-report.html' });
       return links;
     }
 
@@ -82,7 +82,7 @@
       const rows = App.getRows(SHEET, period);
       const tbody = document.getElementById('tbody');
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="16" class="text-muted text-center" style="padding:1.5rem;">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ù‡Ø°Ù‡ Ø§Ù„ÙØªØ±Ø©</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16" class="text-muted text-center" style="padding:1.5rem;">„§ ªˆ¬¯ ¨Š§†§ª „‡°‡ §„ª±©</td></tr>';
         return;
       }
       tbody.innerHTML = rows.map((r, i) => rowHtml(r, i + 1)).join('');
@@ -96,20 +96,20 @@
       return `<tr data-id="${r.id}">
         <td>${num}</td>
         <td><input type="date" value="${r.date||''}" onchange="upd(${r.id},'date',this.value)"></td>
-        <td><select onchange="onMatChange(${r.id},this.value)"><option value="">-- Ø§Ø®ØªØ± --</option>${matOpts}</select></td>
-        <td><input type="text" value="${esc(matEn)}" readonly placeholder="ØªÙ„Ù‚Ø§Ø¦ÙŠ"></td>
-        <td><input type="text" value="${esc(r.matType||'')}" onchange="upd(${r.id},'matType',this.value)" placeholder="Ù†ÙˆØ¹ Ø§Ù„Ù…Ø§Ø¯Ø©"></td>
-        <td><input type="text" value="${esc(r.tradeName||'')}" onchange="upd(${r.id},'tradeName',this.value)" placeholder="Ø§Ù„Ø§Ø³Ù… Ø§Ù„ØªØ¬Ø§Ø±ÙŠ"></td>
-        <td><input type="text" value="${esc(r.concentration||'')}" onchange="upd(${r.id},'concentration',this.value)" placeholder="Ø§Ù„ØªØ±ÙƒÙŠØ²"></td>
-        <td><input type="text" value="${esc(r.origin||'')}" onchange="upd(${r.id},'origin',this.value)" placeholder="Ø§Ù„Ù…Ù†Ø´Ø£"></td>
+        <td><select onchange="onMatChange(${r.id},this.value)"><option value="">-- §®ª± --</option>${matOpts}</select></td>
+        <td><input type="text" value="${esc(matEn)}" readonly placeholder="ª„‚§¦Š"></td>
+        <td><input type="text" value="${esc(r.matType||'')}" onchange="upd(${r.id},'matType',this.value)" placeholder="†ˆ¹ §„…§¯©"></td>
+        <td><input type="text" value="${esc(r.tradeName||'')}" onchange="upd(${r.id},'tradeName',this.value)" placeholder="§„§³… §„ª¬§±Š"></td>
+        <td><input type="text" value="${esc(r.concentration||'')}" onchange="upd(${r.id},'concentration',this.value)" placeholder="§„ª±ƒŠ²"></td>
+        <td><input type="text" value="${esc(r.origin||'')}" onchange="upd(${r.id},'origin',this.value)" placeholder="§„…†´£"></td>
         <td><input type="number" step="0.01" value="${r.price||''}" onchange="upd(${r.id},'price',this.value)" placeholder="0"></td>
-        <td><input type="text" value="${esc(r.supplier||'')}" onchange="upd(${r.id},'supplier',this.value)" placeholder="Ø§Ù„Ù…ÙˆØ±Ø¯"></td>
-        <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="Ø§Ù„Ù…Ø³Ø¦ÙˆÙ„"></td>
-        <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="Ø§Ù„ØªÙ„ÙŠÙÙˆÙ†"></td>
-        <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="Ø§Ù„ÙˆØ§ØªØ³"></td>
-        <td><input type="text" value="${esc(r.store||'')}" onchange="upd(${r.id},'store',this.value)" placeholder="Ø§Ù„Ù…Ø®Ø²Ù†"></td>
-        <td><input type="text" value="${esc(r.notes||'')}" onchange="upd(${r.id},'notes',this.value)" placeholder="Ù…Ù„Ø§Ø­Ø¸Ø§Øª"></td>
-        <td><button class="btn btn-danger btn-sm" onclick="del(${r.id})">ðŸ—‘</button></td>
+        <td><input type="text" value="${esc(r.supplier||'')}" onchange="upd(${r.id},'supplier',this.value)" placeholder="§„…ˆ±¯"></td>
+        <td><input type="text" value="${esc(r.manager||'')}" onchange="upd(${r.id},'manager',this.value)" placeholder="§„…³¦ˆ„"></td>
+        <td><input type="text" value="${esc(r.phone||'')}" onchange="upd(${r.id},'phone',this.value)" placeholder="§„ª„Šˆ†"></td>
+        <td><input type="text" value="${esc(r.whatsapp||'')}" onchange="upd(${r.id},'whatsapp',this.value)" placeholder="§„ˆ§ª³"></td>
+        <td><input type="text" value="${esc(r.store||'')}" onchange="upd(${r.id},'store',this.value)" placeholder="§„…®²†"></td>
+        <td><input type="text" value="${esc(r.notes||'')}" onchange="upd(${r.id},'notes',this.value)" placeholder="…„§­¸§ª"></td>
+        <td><button class="btn btn-danger btn-sm" onclick="del(${r.id})">[icon]button></td>
       </tr>`;
     }
 
@@ -130,12 +130,13 @@
     }
 
     function del(id) {
-      if (confirm('Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„ØµÙØŸ')) { App.deleteRow(SHEET, period, id); render(); }
+      if (confirm('­° ‡°§ §„µŸ')) { App.deleteRow(SHEET, period, id); render(); }
     }
 
     function esc(s) { return App.escHtml(s); }
   </script>
 </body>
 </html>
+
 
 
