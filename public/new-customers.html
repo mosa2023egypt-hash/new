@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدارة العملاء</title>
+  <link rel="stylesheet" href="new-styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container">
+    <div class="d-flex justify-between align-center flex-wrap mb-2">
+      <h2 class="page-title">👥 إدارة العملاء</h2>
+      <button class="btn btn-primary" id="btnAdd">➕ إضافة عميل جديد</button>
+    </div>
+
+    <div id="alertArea"></div>
+
+    <!-- Active Customers -->
+    <div class="card">
+      <h3 class="mb-2" style="color:var(--primary);">✅ العملاء النشطون</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>م</th>
+              <th>الاسم</th>
+              <th>التليفون</th>
+              <th>العنوان</th>
+              <th>ملاحظات</th>
+              <th>تاريخ التسجيل</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="activeBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- My pending requests (for employees) -->
+    <div class="card" id="myPendingCard">
+      <h3 class="mb-2" style="color:var(--accent);">⏳ طلباتي قيد المراجعة</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>الاسم</th><th>التليفون</th><th>الحالة</th><th>تاريخ الطلب</th><th>سبب الرفض</th></tr>
+          </thead>
+          <tbody id="myPendingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Manager: Pending customer approvals -->
+    <div class="card" id="managerPendingCard" style="display:none;">
+      <h3 class="mb-2" style="color:var(--accent);">⏳ طلبات إضافة عملاء (في انتظار الاعتماد)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>الاسم</th><th>التليفون</th><th>العنوان</th><th>ملاحظات</th><th>مقدم الطلب</th><th>التاريخ</th><th>إجراء</th></tr>
+          </thead>
+          <tbody id="managerPendingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Manager: Pending deactivation requests -->
+    <div class="card" id="deactCard" style="display:none;">
+      <h3 class="mb-2" style="color:var(--danger);">🔴 طلبات إيقاف عملاء</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>العميل</th><th>سبب الإيقاف</th><th>مقدم الطلب</th><th>التاريخ</th><th>إجراء</th></tr>
+          </thead>
+          <tbody id="deactBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Manager: Inactive customers -->
+    <div class="card" id="inactiveCard" style="display:none;">
+      <h3 class="mb-2" style="color:var(--muted);">🚫 العملاء الموقوفون</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>الاسم</th><th>التليفون</th><th>العنوان</th><th>إجراء</th></tr>
+          </thead>
+          <tbody id="inactiveBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Customer Modal -->
+  <div class="modal-backdrop" id="addModal">
+    <div class="modal">
+      <h3>➕ إضافة عميل جديد</h3>
+      <div class="form-group">
+        <label>اسم العميل *</label>
+        <input type="text" id="custName" class="form-control" placeholder="أدخل اسم العميل">
+      </div>
+      <div class="form-group">
+        <label>التليفون</label>
+        <input type="text" id="custPhone" class="form-control" placeholder="رقم التليفون">
+      </div>
+      <div class="form-group">
+        <label>العنوان</label>
+        <input type="text" id="custAddress" class="form-control" placeholder="العنوان">
+      </div>
+      <div class="form-group">
+        <label>ملاحظات</label>
+        <input type="text" id="custNotes" class="form-control" placeholder="ملاحظات">
+      </div>
+      <div id="addError" class="login-error"></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnSubmit">إرسال الطلب</button>
+        <button class="btn btn-outline" id="btnCancel">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Customer Modal -->
+  <div class="modal-backdrop" id="editModal">
+    <div class="modal">
+      <h3>✏️ تعديل بيانات العميل</h3>
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label>اسم العميل *</label>
+        <input type="text" id="editName" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>التليفون</label>
+        <input type="text" id="editPhone" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>العنوان</label>
+        <input type="text" id="editAddress" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>ملاحظات</label>
+        <input type="text" id="editNotes" class="form-control">
+      </div>
+      <div id="editError" class="login-error"></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnSaveEdit">حفظ التعديلات</button>
+        <button class="btn btn-outline" id="btnCancelEdit">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deactivation Request Modal -->
+  <div class="modal-backdrop" id="deactModal">
+    <div class="modal">
+      <h3>🔴 طلب إيقاف عميل</h3>
+      <input type="hidden" id="deactEntityId">
+      <p id="deactEntityName" style="color:var(--text);font-weight:700;margin-bottom:1rem;"></p>
+      <div class="form-group">
+        <label>سبب الإيقاف</label>
+        <input type="text" id="deactReason" class="form-control" placeholder="اذكر سبب الإيقاف">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="btnSubmitDeact">إرسال طلب الإيقاف</button>
+        <button class="btn btn-outline" id="btnCancelDeact">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject Modal -->
+  <div class="modal-backdrop" id="rejectModal">
+    <div class="modal">
+      <h3>✘ رفض طلب إضافة عميل</h3>
+      <input type="hidden" id="rejectId">
+      <div class="form-group">
+        <label>سبب الرفض (اختياري)</label>
+        <input type="text" id="rejectReason" class="form-control" placeholder="سبب الرفض">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="btnConfirmReject">تأكيد الرفض</button>
+        <button class="btn btn-outline" id="btnCancelReject">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="new-app.js"></script>
+  <script>
+    const session = App.requireAuth(['sales', 'gm', 'proc_manager', 'admin']);
+    const isManager = App.canApproveCustomers(session ? session.role : '');
+    if (session) init();
+
+    function init() {
+      App.renderNavbar(document.getElementById('navbar'), session, navLinks());
+
+      if (isManager) {
+        document.getElementById('managerPendingCard').style.display = '';
+        document.getElementById('deactCard').style.display = '';
+        document.getElementById('inactiveCard').style.display = '';
+      }
+
+      render();
+
+      document.getElementById('btnAdd').addEventListener('click', openAddModal);
+      document.getElementById('btnCancel').addEventListener('click', () => document.getElementById('addModal').classList.remove('open'));
+      document.getElementById('btnSubmit').addEventListener('click', submitAdd);
+      document.getElementById('btnCancelEdit').addEventListener('click', () => document.getElementById('editModal').classList.remove('open'));
+      document.getElementById('btnSaveEdit').addEventListener('click', submitEdit);
+      document.getElementById('btnCancelDeact').addEventListener('click', () => document.getElementById('deactModal').classList.remove('open'));
+      document.getElementById('btnSubmitDeact').addEventListener('click', submitDeact);
+      document.getElementById('btnCancelReject').addEventListener('click', () => document.getElementById('rejectModal').classList.remove('open'));
+      document.getElementById('btnConfirmReject').addEventListener('click', confirmReject);
+    }
+
+    function navLinks() {
+      const links = [];
+      if (App.isManager(session.role)) {
+        links.push({ label: '🏠 الرئيسية', href: 'new-home.html' });
+        links.push({ label: '✅ موافقات الكيانات', href: 'new-entity-approvals.html' });
+      }
+      links.push({ label: '🏭 الموردون', href: 'new-suppliers.html' });
+      return links;
+    }
+
+    function render() {
+      renderActive();
+      renderMyPending();
+      if (isManager) {
+        renderManagerPending();
+        renderDeactRequests();
+        renderInactive();
+      }
+    }
+
+    function renderActive() {
+      const list = App.getActiveCustomers();
+      const tbody = document.getElementById('activeBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-muted text-center" style="padding:1rem;">لا يوجد عملاء نشطون بعد</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((c, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.phone || '-')}</td>
+          <td>${esc(c.address || '-')}</td>
+          <td>${esc(c.notes || '-')}</td>
+          <td>${c.createdAt}</td>
+          <td style="display:flex;gap:.4rem;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="openEdit(${c.id})">✏️ تعديل</button>
+            ${isManager
+              ? `<button class="btn btn-danger btn-sm" onclick="managerDeactivate(${c.id})">🚫 إيقاف</button>`
+              : `<button class="btn btn-outline btn-sm" onclick="openDeactRequest(${c.id}, '${esc(c.name)}')">🔴 طلب إيقاف</button>`
+            }
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderMyPending() {
+      const mine = App.getCustomers().filter(c =>
+        (c.status === 'pending' || c.status === 'rejected') && c.requestedBy === session.username
+      );
+      const tbody = document.getElementById('myPendingBody');
+      const statusMap = { pending: 'badge-pending', rejected: 'badge-rejected' };
+      const labelMap  = { pending: 'في الانتظار', rejected: 'مرفوض' };
+      if (!mine.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات</td></tr>';
+        return;
+      }
+      tbody.innerHTML = mine.map((c, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.phone || '-')}</td>
+          <td><span class="badge ${statusMap[c.status]}">${labelMap[c.status]}</span></td>
+          <td>${c.createdAt}</td>
+          <td>${esc(c.rejectionReason || '-')}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderManagerPending() {
+      const list = App.getCustomers().filter(c => c.status === 'pending');
+      const tbody = document.getElementById('managerPendingBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات معلقة</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((c, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.phone || '-')}</td>
+          <td>${esc(c.address || '-')}</td>
+          <td>${esc(c.notes || '-')}</td>
+          <td>${esc(c.requestedByName)}</td>
+          <td>${c.createdAt}</td>
+          <td style="display:flex;gap:.4rem;">
+            <button class="btn btn-success btn-sm" onclick="approve(${c.id})">✔ اعتماد</button>
+            <button class="btn btn-danger btn-sm" onclick="openReject(${c.id})">✘ رفض</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderDeactRequests() {
+      const list = App.getDeactivationRequests().filter(r => r.entityType === 'customer' && r.status === 'pending');
+      const tbody = document.getElementById('deactBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات إيقاف معلقة</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((r, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(r.entityName)}</td>
+          <td>${esc(r.reason || '-')}</td>
+          <td>${esc(r.requestedByName)}</td>
+          <td>${r.createdAt}</td>
+          <td style="display:flex;gap:.4rem;">
+            <button class="btn btn-danger btn-sm" onclick="approveDeact(${r.id})">✔ موافقة</button>
+            <button class="btn btn-outline btn-sm" onclick="rejectDeact(${r.id})">✘ رفض</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderInactive() {
+      const list = App.getCustomers().filter(c => c.status === 'inactive');
+      const tbody = document.getElementById('inactiveBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center" style="padding:1rem;">لا يوجد عملاء موقوفون</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((c, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.phone || '-')}</td>
+          <td>${esc(c.address || '-')}</td>
+          <td>
+            <button class="btn btn-success btn-sm" onclick="reactivate(${c.id})">▶ تفعيل</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openAddModal() {
+      document.getElementById('custName').value = '';
+      document.getElementById('custPhone').value = '';
+      document.getElementById('custAddress').value = '';
+      document.getElementById('custNotes').value = '';
+      document.getElementById('addError').classList.remove('show');
+      document.getElementById('addModal').classList.add('open');
+    }
+
+    function submitAdd() {
+      const name    = document.getElementById('custName').value.trim();
+      const phone   = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+      const notes   = document.getElementById('custNotes').value.trim();
+      const errEl   = document.getElementById('addError');
+
+      if (!name) {
+        errEl.textContent = 'يرجى إدخال اسم العميل';
+        errEl.classList.add('show');
+        return;
+      }
+      const dup = App.getCustomers().filter(c => c.status === 'active' || c.status === 'pending').find(c => c.name === name);
+      if (dup) {
+        errEl.textContent = 'هذا العميل موجود بالفعل';
+        errEl.classList.add('show');
+        return;
+      }
+
+      App.addCustomerRequest({ name, phone, address, notes }, session.username, session.name);
+      document.getElementById('addModal').classList.remove('open');
+      showAlert('تم إرسال طلب إضافة العميل. في انتظار الاعتماد.', 'success');
+      render();
+    }
+
+    function openEdit(id) {
+      const c = App.getCustomers().find(x => x.id === id);
+      if (!c) return;
+      document.getElementById('editId').value = id;
+      document.getElementById('editName').value = c.name;
+      document.getElementById('editPhone').value = c.phone || '';
+      document.getElementById('editAddress').value = c.address || '';
+      document.getElementById('editNotes').value = c.notes || '';
+      document.getElementById('editError').classList.remove('show');
+      document.getElementById('editModal').classList.add('open');
+    }
+
+    function submitEdit() {
+      const id      = Number(document.getElementById('editId').value);
+      const name    = document.getElementById('editName').value.trim();
+      const phone   = document.getElementById('editPhone').value.trim();
+      const address = document.getElementById('editAddress').value.trim();
+      const notes   = document.getElementById('editNotes').value.trim();
+      const errEl   = document.getElementById('editError');
+
+      if (!name) {
+        errEl.textContent = 'يرجى إدخال اسم العميل';
+        errEl.classList.add('show');
+        return;
+      }
+      App.updateCustomer(id, { name, phone, address, notes }, session.username, session.name);
+      document.getElementById('editModal').classList.remove('open');
+      showAlert('تم تعديل بيانات العميل بنجاح', 'success');
+      render();
+    }
+
+    function approve(id) {
+      App.approveCustomer(id, session.username, session.name);
+      showAlert('تم اعتماد العميل بنجاح', 'success');
+      render();
+    }
+
+    function openReject(id) {
+      document.getElementById('rejectId').value = id;
+      document.getElementById('rejectReason').value = '';
+      document.getElementById('rejectModal').classList.add('open');
+    }
+
+    function confirmReject() {
+      const id     = Number(document.getElementById('rejectId').value);
+      const reason = document.getElementById('rejectReason').value.trim();
+      App.rejectCustomer(id, session.username, session.name, reason);
+      document.getElementById('rejectModal').classList.remove('open');
+      showAlert('تم رفض الطلب', 'danger');
+      render();
+    }
+
+    function openDeactRequest(id, name) {
+      document.getElementById('deactEntityId').value = id;
+      document.getElementById('deactEntityName').textContent = 'العميل: ' + name;
+      document.getElementById('deactReason').value = '';
+      document.getElementById('deactModal').classList.add('open');
+    }
+
+    function submitDeact() {
+      const id   = Number(document.getElementById('deactEntityId').value);
+      const c    = App.getCustomers().find(x => x.id === id);
+      const reason = document.getElementById('deactReason').value.trim();
+      App.addDeactivationRequest('customer', id, c ? c.name : '', reason, session.username, session.name);
+      document.getElementById('deactModal').classList.remove('open');
+      showAlert('تم إرسال طلب الإيقاف. في انتظار موافقة المدير.', 'success');
+      render();
+    }
+
+    function approveDeact(reqId) {
+      App.approveDeactivation(reqId, session.username, session.name);
+      showAlert('تم إيقاف العميل بنجاح', 'success');
+      render();
+    }
+
+    function rejectDeact(reqId) {
+      App.rejectDeactivation(reqId);
+      showAlert('تم رفض طلب الإيقاف', 'danger');
+      render();
+    }
+
+    function managerDeactivate(id) {
+      const c = App.getCustomers().find(x => x.id === id);
+      if (!c) return;
+      if (confirm('هل تريد إيقاف العميل "' + c.name + '"؟')) {
+        App.updateCustomer(id, { status: 'inactive' }, session.username, session.name);
+        showAlert('تم إيقاف العميل', 'success');
+        render();
+      }
+    }
+
+    function reactivate(id) {
+      if (confirm('هل تريد إعادة تفعيل هذا العميل؟')) {
+        App.updateCustomer(id, { status: 'active' }, session.username, session.name);
+        showAlert('تم إعادة تفعيل العميل', 'success');
+        render();
+      }
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('alertArea');
+      el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+      setTimeout(() => { el.innerHTML = ''; }, 4000);
+    }
+
+    function esc(s) { return App.escHtml(s); }
+  </script>
+</body>
+</html>

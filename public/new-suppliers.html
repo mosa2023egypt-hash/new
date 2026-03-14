@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدارة الموردين</title>
+  <link rel="stylesheet" href="new-styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container">
+    <div class="d-flex justify-between align-center flex-wrap mb-2">
+      <h2 class="page-title">🏭 إدارة الموردين</h2>
+      <button class="btn btn-primary" id="btnAdd">➕ إضافة مورد جديد</button>
+    </div>
+
+    <div id="alertArea"></div>
+
+    <!-- Active Suppliers -->
+    <div class="card">
+      <h3 class="mb-2" style="color:var(--primary);">✅ الموردون النشطون</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>م</th>
+              <th>الاسم</th>
+              <th>التليفون</th>
+              <th>العنوان</th>
+              <th>المواد المورَّدة</th>
+              <th>ملاحظات</th>
+              <th>تاريخ التسجيل</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="activeBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- My pending requests -->
+    <div class="card" id="myPendingCard">
+      <h3 class="mb-2" style="color:var(--accent);">⏳ طلباتي قيد المراجعة</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>الاسم</th><th>التليفون</th><th>الحالة</th><th>تاريخ الطلب</th><th>سبب الرفض</th></tr>
+          </thead>
+          <tbody id="myPendingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Manager: Pending supplier approvals -->
+    <div class="card" id="managerPendingCard" style="display:none;">
+      <h3 class="mb-2" style="color:var(--accent);">⏳ طلبات إضافة موردين (في انتظار الاعتماد)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>الاسم</th><th>التليفون</th><th>العنوان</th><th>المواد</th><th>ملاحظات</th><th>مقدم الطلب</th><th>التاريخ</th><th>إجراء</th></tr>
+          </thead>
+          <tbody id="managerPendingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Manager: Pending deactivation requests -->
+    <div class="card" id="deactCard" style="display:none;">
+      <h3 class="mb-2" style="color:var(--danger);">🔴 طلبات إيقاف موردين</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>المورد</th><th>سبب الإيقاف</th><th>مقدم الطلب</th><th>التاريخ</th><th>إجراء</th></tr>
+          </thead>
+          <tbody id="deactBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Manager: Inactive suppliers -->
+    <div class="card" id="inactiveCard" style="display:none;">
+      <h3 class="mb-2" style="color:var(--muted);">🚫 الموردون الموقوفون</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>الاسم</th><th>التليفون</th><th>العنوان</th><th>إجراء</th></tr>
+          </thead>
+          <tbody id="inactiveBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Supplier Modal -->
+  <div class="modal-backdrop" id="addModal">
+    <div class="modal">
+      <h3>➕ إضافة مورد جديد</h3>
+      <div class="form-group">
+        <label>اسم المورد *</label>
+        <input type="text" id="suppName" class="form-control" placeholder="أدخل اسم المورد">
+      </div>
+      <div class="form-group">
+        <label>التليفون</label>
+        <input type="text" id="suppPhone" class="form-control" placeholder="رقم التليفون">
+      </div>
+      <div class="form-group">
+        <label>العنوان</label>
+        <input type="text" id="suppAddress" class="form-control" placeholder="العنوان">
+      </div>
+      <div class="form-group">
+        <label>المواد المورَّدة</label>
+        <input type="text" id="suppMaterial" class="form-control" placeholder="المواد أو المنتجات التي يورّدها">
+      </div>
+      <div class="form-group">
+        <label>ملاحظات</label>
+        <input type="text" id="suppNotes" class="form-control" placeholder="ملاحظات">
+      </div>
+      <div id="addError" class="login-error"></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnSubmit">إرسال الطلب</button>
+        <button class="btn btn-outline" id="btnCancel">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Supplier Modal -->
+  <div class="modal-backdrop" id="editModal">
+    <div class="modal">
+      <h3>✏️ تعديل بيانات المورد</h3>
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label>اسم المورد *</label>
+        <input type="text" id="editName" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>التليفون</label>
+        <input type="text" id="editPhone" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>العنوان</label>
+        <input type="text" id="editAddress" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>المواد المورَّدة</label>
+        <input type="text" id="editMaterial" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>ملاحظات</label>
+        <input type="text" id="editNotes" class="form-control">
+      </div>
+      <div id="editError" class="login-error"></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnSaveEdit">حفظ التعديلات</button>
+        <button class="btn btn-outline" id="btnCancelEdit">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deactivation Request Modal -->
+  <div class="modal-backdrop" id="deactModal">
+    <div class="modal">
+      <h3>🔴 طلب إيقاف مورد</h3>
+      <input type="hidden" id="deactEntityId">
+      <p id="deactEntityName" style="color:var(--text);font-weight:700;margin-bottom:1rem;"></p>
+      <div class="form-group">
+        <label>سبب الإيقاف</label>
+        <input type="text" id="deactReason" class="form-control" placeholder="اذكر سبب الإيقاف">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="btnSubmitDeact">إرسال طلب الإيقاف</button>
+        <button class="btn btn-outline" id="btnCancelDeact">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject Modal -->
+  <div class="modal-backdrop" id="rejectModal">
+    <div class="modal">
+      <h3>✘ رفض طلب إضافة مورد</h3>
+      <input type="hidden" id="rejectId">
+      <div class="form-group">
+        <label>سبب الرفض (اختياري)</label>
+        <input type="text" id="rejectReason" class="form-control" placeholder="سبب الرفض">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="btnConfirmReject">تأكيد الرفض</button>
+        <button class="btn btn-outline" id="btnCancelReject">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="new-app.js"></script>
+  <script>
+    const session = App.requireAuth(['procurement', 'gm', 'proc_manager', 'admin']);
+    const isManager = App.canApproveSuppliers(session ? session.role : '');
+    if (session) init();
+
+    function init() {
+      App.renderNavbar(document.getElementById('navbar'), session, navLinks());
+
+      if (isManager) {
+        document.getElementById('managerPendingCard').style.display = '';
+        document.getElementById('deactCard').style.display = '';
+        document.getElementById('inactiveCard').style.display = '';
+      }
+
+      render();
+
+      document.getElementById('btnAdd').addEventListener('click', openAddModal);
+      document.getElementById('btnCancel').addEventListener('click', () => document.getElementById('addModal').classList.remove('open'));
+      document.getElementById('btnSubmit').addEventListener('click', submitAdd);
+      document.getElementById('btnCancelEdit').addEventListener('click', () => document.getElementById('editModal').classList.remove('open'));
+      document.getElementById('btnSaveEdit').addEventListener('click', submitEdit);
+      document.getElementById('btnCancelDeact').addEventListener('click', () => document.getElementById('deactModal').classList.remove('open'));
+      document.getElementById('btnSubmitDeact').addEventListener('click', submitDeact);
+      document.getElementById('btnCancelReject').addEventListener('click', () => document.getElementById('rejectModal').classList.remove('open'));
+      document.getElementById('btnConfirmReject').addEventListener('click', confirmReject);
+    }
+
+    function navLinks() {
+      const links = [];
+      if (App.isManager(session.role)) {
+        links.push({ label: '🏠 الرئيسية', href: 'new-home.html' });
+        links.push({ label: '✅ موافقات الكيانات', href: 'new-entity-approvals.html' });
+      }
+      links.push({ label: '👥 العملاء', href: 'new-customers.html' });
+      return links;
+    }
+
+    function render() {
+      renderActive();
+      renderMyPending();
+      if (isManager) {
+        renderManagerPending();
+        renderDeactRequests();
+        renderInactive();
+      }
+    }
+
+    function renderActive() {
+      const list = App.getActiveSuppliers();
+      const tbody = document.getElementById('activeBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center" style="padding:1rem;">لا يوجد موردون نشطون بعد</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((s, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(s.name)}</td>
+          <td>${esc(s.phone || '-')}</td>
+          <td>${esc(s.address || '-')}</td>
+          <td>${esc(s.material || '-')}</td>
+          <td>${esc(s.notes || '-')}</td>
+          <td>${s.createdAt}</td>
+          <td style="display:flex;gap:.4rem;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="openEdit(${s.id})">✏️ تعديل</button>
+            ${isManager
+              ? `<button class="btn btn-danger btn-sm" onclick="managerDeactivate(${s.id})">🚫 إيقاف</button>`
+              : `<button class="btn btn-outline btn-sm" onclick="openDeactRequest(${s.id}, '${esc(s.name)}')">🔴 طلب إيقاف</button>`
+            }
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderMyPending() {
+      const mine = App.getSuppliers().filter(s =>
+        (s.status === 'pending' || s.status === 'rejected') && s.requestedBy === session.username
+      );
+      const tbody = document.getElementById('myPendingBody');
+      const statusMap = { pending: 'badge-pending', rejected: 'badge-rejected' };
+      const labelMap  = { pending: 'في الانتظار', rejected: 'مرفوض' };
+      if (!mine.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات</td></tr>';
+        return;
+      }
+      tbody.innerHTML = mine.map((s, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(s.name)}</td>
+          <td>${esc(s.phone || '-')}</td>
+          <td><span class="badge ${statusMap[s.status]}">${labelMap[s.status]}</span></td>
+          <td>${s.createdAt}</td>
+          <td>${esc(s.rejectionReason || '-')}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderManagerPending() {
+      const list = App.getSuppliers().filter(s => s.status === 'pending');
+      const tbody = document.getElementById('managerPendingBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات معلقة</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((s, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(s.name)}</td>
+          <td>${esc(s.phone || '-')}</td>
+          <td>${esc(s.address || '-')}</td>
+          <td>${esc(s.material || '-')}</td>
+          <td>${esc(s.notes || '-')}</td>
+          <td>${esc(s.requestedByName)}</td>
+          <td>${s.createdAt}</td>
+          <td style="display:flex;gap:.4rem;">
+            <button class="btn btn-success btn-sm" onclick="approve(${s.id})">✔ اعتماد</button>
+            <button class="btn btn-danger btn-sm" onclick="openReject(${s.id})">✘ رفض</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderDeactRequests() {
+      const list = App.getDeactivationRequests().filter(r => r.entityType === 'supplier' && r.status === 'pending');
+      const tbody = document.getElementById('deactBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات إيقاف معلقة</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((r, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(r.entityName)}</td>
+          <td>${esc(r.reason || '-')}</td>
+          <td>${esc(r.requestedByName)}</td>
+          <td>${r.createdAt}</td>
+          <td style="display:flex;gap:.4rem;">
+            <button class="btn btn-danger btn-sm" onclick="approveDeact(${r.id})">✔ موافقة</button>
+            <button class="btn btn-outline btn-sm" onclick="rejectDeact(${r.id})">✘ رفض</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderInactive() {
+      const list = App.getSuppliers().filter(s => s.status === 'inactive');
+      const tbody = document.getElementById('inactiveBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center" style="padding:1rem;">لا يوجد موردون موقوفون</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((s, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(s.name)}</td>
+          <td>${esc(s.phone || '-')}</td>
+          <td>${esc(s.address || '-')}</td>
+          <td>
+            <button class="btn btn-success btn-sm" onclick="reactivate(${s.id})">▶ تفعيل</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openAddModal() {
+      ['suppName','suppPhone','suppAddress','suppMaterial','suppNotes'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('addError').classList.remove('show');
+      document.getElementById('addModal').classList.add('open');
+    }
+
+    function submitAdd() {
+      const name     = document.getElementById('suppName').value.trim();
+      const phone    = document.getElementById('suppPhone').value.trim();
+      const address  = document.getElementById('suppAddress').value.trim();
+      const material = document.getElementById('suppMaterial').value.trim();
+      const notes    = document.getElementById('suppNotes').value.trim();
+      const errEl    = document.getElementById('addError');
+
+      if (!name) {
+        errEl.textContent = 'يرجى إدخال اسم المورد';
+        errEl.classList.add('show');
+        return;
+      }
+      const dup = App.getSuppliers().filter(s => s.status === 'active' || s.status === 'pending').find(s => s.name === name);
+      if (dup) {
+        errEl.textContent = 'هذا المورد موجود بالفعل';
+        errEl.classList.add('show');
+        return;
+      }
+
+      App.addSupplierRequest({ name, phone, address, material, notes }, session.username, session.name);
+      document.getElementById('addModal').classList.remove('open');
+      showAlert('تم إرسال طلب إضافة المورد. في انتظار الاعتماد.', 'success');
+      render();
+    }
+
+    function openEdit(id) {
+      const s = App.getSuppliers().find(x => x.id === id);
+      if (!s) return;
+      document.getElementById('editId').value = id;
+      document.getElementById('editName').value = s.name;
+      document.getElementById('editPhone').value = s.phone || '';
+      document.getElementById('editAddress').value = s.address || '';
+      document.getElementById('editMaterial').value = s.material || '';
+      document.getElementById('editNotes').value = s.notes || '';
+      document.getElementById('editError').classList.remove('show');
+      document.getElementById('editModal').classList.add('open');
+    }
+
+    function submitEdit() {
+      const id       = Number(document.getElementById('editId').value);
+      const name     = document.getElementById('editName').value.trim();
+      const phone    = document.getElementById('editPhone').value.trim();
+      const address  = document.getElementById('editAddress').value.trim();
+      const material = document.getElementById('editMaterial').value.trim();
+      const notes    = document.getElementById('editNotes').value.trim();
+      const errEl    = document.getElementById('editError');
+
+      if (!name) {
+        errEl.textContent = 'يرجى إدخال اسم المورد';
+        errEl.classList.add('show');
+        return;
+      }
+      App.updateSupplier(id, { name, phone, address, material, notes }, session.username, session.name);
+      document.getElementById('editModal').classList.remove('open');
+      showAlert('تم تعديل بيانات المورد بنجاح', 'success');
+      render();
+    }
+
+    function approve(id) {
+      App.approveSupplier(id, session.username, session.name);
+      showAlert('تم اعتماد المورد بنجاح', 'success');
+      render();
+    }
+
+    function openReject(id) {
+      document.getElementById('rejectId').value = id;
+      document.getElementById('rejectReason').value = '';
+      document.getElementById('rejectModal').classList.add('open');
+    }
+
+    function confirmReject() {
+      const id     = Number(document.getElementById('rejectId').value);
+      const reason = document.getElementById('rejectReason').value.trim();
+      App.rejectSupplier(id, session.username, session.name, reason);
+      document.getElementById('rejectModal').classList.remove('open');
+      showAlert('تم رفض الطلب', 'danger');
+      render();
+    }
+
+    function openDeactRequest(id, name) {
+      document.getElementById('deactEntityId').value = id;
+      document.getElementById('deactEntityName').textContent = 'المورد: ' + name;
+      document.getElementById('deactReason').value = '';
+      document.getElementById('deactModal').classList.add('open');
+    }
+
+    function submitDeact() {
+      const id     = Number(document.getElementById('deactEntityId').value);
+      const s      = App.getSuppliers().find(x => x.id === id);
+      const reason = document.getElementById('deactReason').value.trim();
+      App.addDeactivationRequest('supplier', id, s ? s.name : '', reason, session.username, session.name);
+      document.getElementById('deactModal').classList.remove('open');
+      showAlert('تم إرسال طلب الإيقاف. في انتظار موافقة المدير.', 'success');
+      render();
+    }
+
+    function approveDeact(reqId) {
+      App.approveDeactivation(reqId, session.username, session.name);
+      showAlert('تم إيقاف المورد بنجاح', 'success');
+      render();
+    }
+
+    function rejectDeact(reqId) {
+      App.rejectDeactivation(reqId);
+      showAlert('تم رفض طلب الإيقاف', 'danger');
+      render();
+    }
+
+    function managerDeactivate(id) {
+      const s = App.getSuppliers().find(x => x.id === id);
+      if (!s) return;
+      if (confirm('هل تريد إيقاف المورد "' + s.name + '"؟')) {
+        App.updateSupplier(id, { status: 'inactive' }, session.username, session.name);
+        showAlert('تم إيقاف المورد', 'success');
+        render();
+      }
+    }
+
+    function reactivate(id) {
+      if (confirm('هل تريد إعادة تفعيل هذا المورد؟')) {
+        App.updateSupplier(id, { status: 'active' }, session.username, session.name);
+        showAlert('تم إعادة تفعيل المورد', 'success');
+        render();
+      }
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('alertArea');
+      el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+      setTimeout(() => { el.innerHTML = ''; }, 4000);
+    }
+
+    function esc(s) { return App.escHtml(s); }
+  </script>
+</body>
+</html>

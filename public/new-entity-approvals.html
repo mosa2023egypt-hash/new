@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>موافقات العملاء والموردين</title>
+  <link rel="stylesheet" href="new-styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container">
+    <h2 class="page-title">✅ موافقات العملاء والموردين</h2>
+
+    <div id="alertArea"></div>
+
+    <!-- Pending customer approvals (gm, admin) -->
+    <div class="card" id="custPendingCard">
+      <h3 class="mb-2" style="color:var(--accent);">⏳ طلبات إضافة عملاء</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>الاسم</th><th>التليفون</th><th>العنوان</th><th>ملاحظات</th><th>مقدم الطلب</th><th>التاريخ</th><th>إجراء</th></tr>
+          </thead>
+          <tbody id="custPendingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pending supplier approvals (proc_manager, gm, admin) -->
+    <div class="card" id="suppPendingCard">
+      <h3 class="mb-2" style="color:var(--accent);">⏳ طلبات إضافة موردين</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>الاسم</th><th>التليفون</th><th>العنوان</th><th>المواد</th><th>ملاحظات</th><th>مقدم الطلب</th><th>التاريخ</th><th>إجراء</th></tr>
+          </thead>
+          <tbody id="suppPendingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pending deactivation requests -->
+    <div class="card" id="deactPendingCard">
+      <h3 class="mb-2" style="color:var(--danger);">🔴 طلبات الإيقاف</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>النوع</th><th>الاسم</th><th>سبب الإيقاف</th><th>مقدم الطلب</th><th>التاريخ</th><th>إجراء</th></tr>
+          </thead>
+          <tbody id="deactPendingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- All customers overview -->
+    <div class="card" id="allCustCard">
+      <h3 class="mb-2" style="color:var(--primary);">📋 جميع العملاء</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>الاسم</th><th>التليفون</th><th>العنوان</th><th>الحالة</th><th>مقدم الطلب</th><th>التاريخ</th></tr>
+          </thead>
+          <tbody id="allCustBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- All suppliers overview -->
+    <div class="card" id="allSuppCard">
+      <h3 class="mb-2" style="color:var(--primary);">📋 جميع الموردين</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>م</th><th>الاسم</th><th>التليفون</th><th>العنوان</th><th>المواد</th><th>الحالة</th><th>مقدم الطلب</th><th>التاريخ</th></tr>
+          </thead>
+          <tbody id="allSuppBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject Customer Modal -->
+  <div class="modal-backdrop" id="rejectCustModal">
+    <div class="modal">
+      <h3>✘ رفض طلب إضافة عميل</h3>
+      <input type="hidden" id="rejectCustId">
+      <div class="form-group">
+        <label>سبب الرفض (اختياري)</label>
+        <input type="text" id="rejectCustReason" class="form-control" placeholder="سبب الرفض">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="btnConfirmRejectCust">تأكيد الرفض</button>
+        <button class="btn btn-outline" id="btnCancelRejectCust">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject Supplier Modal -->
+  <div class="modal-backdrop" id="rejectSuppModal">
+    <div class="modal">
+      <h3>✘ رفض طلب إضافة مورد</h3>
+      <input type="hidden" id="rejectSuppId">
+      <div class="form-group">
+        <label>سبب الرفض (اختياري)</label>
+        <input type="text" id="rejectSuppReason" class="form-control" placeholder="سبب الرفض">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="btnConfirmRejectSupp">تأكيد الرفض</button>
+        <button class="btn btn-outline" id="btnCancelRejectSupp">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="new-app.js"></script>
+  <script>
+    const session = App.requireAuth(['gm', 'proc_manager', 'admin']);
+    const canCust = App.canApproveCustomers(session ? session.role : '');
+    const canSupp = App.canApproveSuppliers(session ? session.role : '');
+    if (session) init();
+
+    function init() {
+      App.renderNavbar(document.getElementById('navbar'), session, [
+        { label: '🏠 الرئيسية', href: 'new-home.html' },
+        { label: '👥 العملاء', href: 'new-customers.html' },
+        { label: '🏭 الموردون', href: 'new-suppliers.html' },
+      ]);
+
+      // Hide customer section if manager cannot approve customers
+      if (!canCust) {
+        document.getElementById('custPendingCard').style.display = 'none';
+        document.getElementById('allCustCard').style.display = 'none';
+      }
+
+      render();
+
+      document.getElementById('btnCancelRejectCust').addEventListener('click', () => document.getElementById('rejectCustModal').classList.remove('open'));
+      document.getElementById('btnConfirmRejectCust').addEventListener('click', confirmRejectCust);
+      document.getElementById('btnCancelRejectSupp').addEventListener('click', () => document.getElementById('rejectSuppModal').classList.remove('open'));
+      document.getElementById('btnConfirmRejectSupp').addEventListener('click', confirmRejectSupp);
+    }
+
+    function render() {
+      if (canCust) {
+        renderCustPending();
+        renderAllCustomers();
+      }
+      if (canSupp) {
+        renderSuppPending();
+        renderAllSuppliers();
+      }
+      renderDeactPending();
+    }
+
+    function renderCustPending() {
+      const list  = App.getCustomers().filter(c => c.status === 'pending');
+      const tbody = document.getElementById('custPendingBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات معلقة</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((c, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.phone || '-')}</td>
+          <td>${esc(c.address || '-')}</td>
+          <td>${esc(c.notes || '-')}</td>
+          <td>${esc(c.requestedByName)}</td>
+          <td>${c.createdAt}</td>
+          <td style="display:flex;gap:.4rem;">
+            <button class="btn btn-success btn-sm" onclick="approveCust(${c.id})">✔ اعتماد</button>
+            <button class="btn btn-danger btn-sm" onclick="openRejectCust(${c.id})">✘ رفض</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderSuppPending() {
+      const list  = App.getSuppliers().filter(s => s.status === 'pending');
+      const tbody = document.getElementById('suppPendingBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات معلقة</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((s, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(s.name)}</td>
+          <td>${esc(s.phone || '-')}</td>
+          <td>${esc(s.address || '-')}</td>
+          <td>${esc(s.material || '-')}</td>
+          <td>${esc(s.notes || '-')}</td>
+          <td>${esc(s.requestedByName)}</td>
+          <td>${s.createdAt}</td>
+          <td style="display:flex;gap:.4rem;">
+            <button class="btn btn-success btn-sm" onclick="approveSupp(${s.id})">✔ اعتماد</button>
+            <button class="btn btn-danger btn-sm" onclick="openRejectSupp(${s.id})">✘ رفض</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderDeactPending() {
+      const typeLabel = { customer: 'عميل', supplier: 'مورد' };
+      let list = App.getDeactivationRequests().filter(r => r.status === 'pending');
+      // Filter by what this manager can approve
+      if (!canCust) list = list.filter(r => r.entityType !== 'customer');
+      if (!canSupp) list = list.filter(r => r.entityType !== 'supplier');
+
+      const tbody = document.getElementById('deactPendingBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-muted text-center" style="padding:1rem;">لا توجد طلبات إيقاف معلقة</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((r, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td><span class="badge badge-pending">${typeLabel[r.entityType] || r.entityType}</span></td>
+          <td>${esc(r.entityName)}</td>
+          <td>${esc(r.reason || '-')}</td>
+          <td>${esc(r.requestedByName)}</td>
+          <td>${r.createdAt}</td>
+          <td style="display:flex;gap:.4rem;">
+            <button class="btn btn-danger btn-sm" onclick="approveDeact(${r.id})">✔ موافقة</button>
+            <button class="btn btn-outline btn-sm" onclick="rejectDeact(${r.id})">✘ رفض</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderAllCustomers() {
+      const list  = App.getCustomers();
+      const tbody = document.getElementById('allCustBody');
+      const statusMap = { pending: 'badge-pending', active: 'badge-approved', rejected: 'badge-rejected', inactive: 'badge-rejected' };
+      const labelMap  = { pending: 'معلق', active: 'نشط', rejected: 'مرفوض', inactive: 'موقوف' };
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-muted text-center" style="padding:1rem;">لا يوجد عملاء</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((c, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.phone || '-')}</td>
+          <td>${esc(c.address || '-')}</td>
+          <td><span class="badge ${statusMap[c.status] || ''}">${labelMap[c.status] || c.status}</span></td>
+          <td>${esc(c.requestedByName)}</td>
+          <td>${c.createdAt}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderAllSuppliers() {
+      const list  = App.getSuppliers();
+      const tbody = document.getElementById('allSuppBody');
+      const statusMap = { pending: 'badge-pending', active: 'badge-approved', rejected: 'badge-rejected', inactive: 'badge-rejected' };
+      const labelMap  = { pending: 'معلق', active: 'نشط', rejected: 'مرفوض', inactive: 'موقوف' };
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center" style="padding:1rem;">لا يوجد موردون</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((s, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(s.name)}</td>
+          <td>${esc(s.phone || '-')}</td>
+          <td>${esc(s.address || '-')}</td>
+          <td>${esc(s.material || '-')}</td>
+          <td><span class="badge ${statusMap[s.status] || ''}">${labelMap[s.status] || s.status}</span></td>
+          <td>${esc(s.requestedByName)}</td>
+          <td>${s.createdAt}</td>
+        </tr>
+      `).join('');
+    }
+
+    function approveCust(id) {
+      App.approveCustomer(id, session.username, session.name);
+      showAlert('تم اعتماد العميل بنجاح', 'success');
+      render();
+    }
+
+    function openRejectCust(id) {
+      document.getElementById('rejectCustId').value = id;
+      document.getElementById('rejectCustReason').value = '';
+      document.getElementById('rejectCustModal').classList.add('open');
+    }
+
+    function confirmRejectCust() {
+      const id     = Number(document.getElementById('rejectCustId').value);
+      const reason = document.getElementById('rejectCustReason').value.trim();
+      App.rejectCustomer(id, session.username, session.name, reason);
+      document.getElementById('rejectCustModal').classList.remove('open');
+      showAlert('تم رفض طلب إضافة العميل', 'danger');
+      render();
+    }
+
+    function approveSupp(id) {
+      App.approveSupplier(id, session.username, session.name);
+      showAlert('تم اعتماد المورد بنجاح', 'success');
+      render();
+    }
+
+    function openRejectSupp(id) {
+      document.getElementById('rejectSuppId').value = id;
+      document.getElementById('rejectSuppReason').value = '';
+      document.getElementById('rejectSuppModal').classList.add('open');
+    }
+
+    function confirmRejectSupp() {
+      const id     = Number(document.getElementById('rejectSuppId').value);
+      const reason = document.getElementById('rejectSuppReason').value.trim();
+      App.rejectSupplier(id, session.username, session.name, reason);
+      document.getElementById('rejectSuppModal').classList.remove('open');
+      showAlert('تم رفض طلب إضافة المورد', 'danger');
+      render();
+    }
+
+    function approveDeact(reqId) {
+      App.approveDeactivation(reqId, session.username, session.name);
+      showAlert('تم إيقاف الكيان بنجاح', 'success');
+      render();
+    }
+
+    function rejectDeact(reqId) {
+      App.rejectDeactivation(reqId);
+      showAlert('تم رفض طلب الإيقاف', 'danger');
+      render();
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('alertArea');
+      el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+      setTimeout(() => { el.innerHTML = ''; }, 4000);
+    }
+
+    function esc(s) { return App.escHtml(s); }
+  </script>
+</body>
+</html>
